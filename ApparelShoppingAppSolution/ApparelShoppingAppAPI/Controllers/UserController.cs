@@ -17,14 +17,14 @@ namespace ApparelShoppingAppAPI.Controllers
             _userService = userService;
         }
 
-        [HttpPost("Login")]
-        [ProducesResponseType(typeof(LoginReturnDTO), StatusCodes.Status200OK)]
+        [HttpPost("CustomerLogin")]
+        [ProducesResponseType(typeof(CustomerLoginReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<LoginReturnDTO>> Login(UserLoginDTO userLoginDTO)
+        public async Task<ActionResult<CustomerLoginReturnDTO>> CustomerLogin(UserLoginDTO userLoginDTO)
         {
             try
             {
-                var result = await _userService.Login(userLoginDTO);
+                var result = await _userService.CustomerLogin(userLoginDTO);
                 return Ok(result);
             }
             catch (UnauthorizedUserException ex)
@@ -41,14 +41,14 @@ namespace ApparelShoppingAppAPI.Controllers
             }
         }
 
-        [HttpPost("Register")]
+        [HttpPost("CustomerRegister")]
         [ProducesResponseType(typeof(RegisterReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RegisterReturnDTO>> Register(UserRegisterDTO userRegisterDTO)
+        public async Task<ActionResult<RegisterReturnDTO>> CustomerRegister(UserRegisterDTO userRegisterDTO)
         {
             try
             {
-                var result = await _userService.Register(userRegisterDTO);
+                var result = await _userService.CustomerRegister(userRegisterDTO);
                 return Ok(result);
             }
             catch (UserAlreadyExistsException ex)
@@ -68,5 +68,57 @@ namespace ApparelShoppingAppAPI.Controllers
                 return StatusCode(500, new ErrorModel(500, $"An unexpected error occurred. {ex.Message}"));
             }
         }
+
+        [HttpPost("SellerLogin")]
+        [ProducesResponseType(typeof(SellerLoginReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<CustomerLoginReturnDTO>> Login(UserLoginDTO userLoginDTO)
+        {
+            try
+            {
+                var result = await _userService.SellerLogin(userLoginDTO);
+                return Ok(result);
+            }
+            catch (UnauthorizedUserException ex)
+            {
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (NotAbelToLoginException ex)
+            {
+                return Unauthorized(new ErrorModel(401, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorModel(500, $"An unexpected error occurred. {ex.Message}"));
+            }
+        }
+        [HttpPost("SellerRegister")]
+        [ProducesResponseType(typeof(RegisterReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<RegisterReturnDTO>> SellerRegister(UserRegisterDTO userRegisterDTO)
+        {
+            try
+            {
+                var result = await _userService.SellerRegister(userRegisterDTO);
+                return Ok(result);
+            }
+            catch (UserAlreadyExistsException ex)
+            {
+                return BadRequest(new ErrorModel(400, ex.Message));
+            }
+            catch (PasswordMismatchException ex)
+            {
+                return BadRequest(new ErrorModel(400, ex.Message));
+            }
+            catch (UnableToRegisterException ex)
+            {
+                return BadRequest(new ErrorModel(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ErrorModel(500, $"An unexpected error occurred. {ex.Message}"));
+            }
+        }
+
     }
 }

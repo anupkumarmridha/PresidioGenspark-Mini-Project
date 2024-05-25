@@ -14,16 +14,16 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         public override async Task<Customer> GetById(int id)
         {
             var customer = await _context.Customers
-                .Include(c => c.Carts)
+                .Include(c => c.Cart)
                 .Include(c => c.Orders)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .FirstOrDefaultAsync(c => c.CustomerId == id);
             return customer;
         }
 
         public override async Task<IEnumerable<Customer>> GetAll()
         {
             var customers = await _context.Customers
-                .Include(c => c.Carts)
+                .Include(c => c.Cart)
                 .Include(c => c.Orders)
                 .ToListAsync();
 
@@ -33,7 +33,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         public async Task<Customer> GetCustomerByEmail(string email)
         {
             var customer = await _context.Customers
-                .Include(c => c.Carts)
+                .Include(c => c.Cart)
                 .Include(c => c.Orders)
                 .FirstOrDefaultAsync(c => c.Email == email);
             return customer;

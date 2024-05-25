@@ -11,11 +11,19 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         {
         }
 
-        public async Task<User> GetUserByEmail(string email)
+        public async Task<User> GetCustomerUserByEmail(string email)
         {
             var user = await _context.Users
                  .Include(u => u.Customer)
                  .FirstOrDefaultAsync(u => u.Customer.Email == email);
+            return user;
+        }
+
+        public async Task<User> GetSellerUserByEmail(string email)
+        {
+            var user = await _context.Users
+                 .Include(u => u.Seller)
+                 .FirstOrDefaultAsync(u => u.Seller.Email == email);
             return user;
         }
     }

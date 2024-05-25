@@ -5,6 +5,7 @@ namespace ApparelShoppingAppAPI.Repositories.Interfaces
 {
     public interface IUserRegisterRepository
     {
-        Task<(Customer customer, User user)> AddUserWithTransaction(UserRegisterRepositoryDTO userRegisterDTO);
+        Task<(Customer customer, User user)> AddCustomerUserWithTransaction(UserRegisterRepositoryDTO userRegisterDTO);
+        Task<(Seller seller, User user)> AddSellerUserWithTransaction(UserRegisterRepositoryDTO userRegisterDTO);
     }
 }

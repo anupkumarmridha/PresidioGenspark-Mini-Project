@@ -12,7 +12,6 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public int ProductId { get; set; }
 
         [Required]
-        [MaxLength(100)]
         public string Name { get; set; }
 
         [Required]
@@ -34,10 +33,12 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
 
         [Required]
         public int CategoryId { get; set; }
+        public int? SellerId { get; set; }
 
         // Navigation properties
         public virtual Category? Category { get; set; }
         public virtual ICollection<Review>? Reviews { get; set; }
+        public virtual Seller? Seller { get; set; }
 
 
 
