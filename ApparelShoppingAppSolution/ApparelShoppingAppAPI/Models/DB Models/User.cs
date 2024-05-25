@@ -2,17 +2,10 @@
 
 namespace ApparelShoppingAppAPI.Models.DB_Models
 {
-    public enum Role
-    {
-        Customer,
-        Seller,
-        Admin
-    }
-
     public class User
     {
         [Key]
-        public int CustomerId { get; set; }
+        public int UserId { get; set; }
 
         [Required]
         public byte[] Password { get; set; }
@@ -21,11 +14,15 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public byte[] PasswordHashKey { get; set; }
 
         [Required]
-        public Role Role { get; set; } = Role.Customer;
+        public string Role { get; set; }
 
-        //navigation property
+        public string Status { get; set; } = "Not Activate";
+
+        // Navigation property for customer
         public virtual Customer? Customer { get; set; }
 
+        // Navigation property for seller
+        public virtual Seller? Seller { get; set; }
 
     }
 }

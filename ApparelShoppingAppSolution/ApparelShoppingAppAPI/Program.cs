@@ -22,6 +22,7 @@ namespace ApparelShoppingAppAPI
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ISellerRepository, SellerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserRegisterRepository, UserRegisterRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();

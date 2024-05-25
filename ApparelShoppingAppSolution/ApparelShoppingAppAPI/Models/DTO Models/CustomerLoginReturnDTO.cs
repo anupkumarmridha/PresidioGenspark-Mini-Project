@@ -2,10 +2,10 @@
 
 namespace ApparelShoppingAppAPI.Models.DTO_Models
 {
-    public class LoginReturnDTO
+    public class CustomerLoginReturnDTO
     {
         public int CustomerId { get; set; }
         public string Token { get; set; }
-        public Role Role { get; set; }
+        public string Role { get; set; }
     }
 }

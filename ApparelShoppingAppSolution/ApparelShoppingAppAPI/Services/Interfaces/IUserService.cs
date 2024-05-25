@@ -4,7 +4,9 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<RegisterReturnDTO> Register(UserRegisterDTO userRegisterDTO);
-        Task<LoginReturnDTO> Login(UserLoginDTO userLoginDTO);
+        Task<RegisterReturnDTO> CustomerRegister(UserRegisterDTO userRegisterDTO);
+        Task<CustomerLoginReturnDTO> CustomerLogin(UserLoginDTO userLoginDTO);
+        Task<RegisterReturnDTO> SellerRegister(UserRegisterDTO userRegisterDTO);
+        Task<SellerLoginReturnDTO> SellerLogin(UserLoginDTO userLoginDTO);
     }
 }

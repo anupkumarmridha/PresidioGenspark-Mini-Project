@@ -9,48 +9,77 @@ namespace ApparelShoppingAppAPI.Contexts
         public ShoppingAppDbContext(DbContextOptions<ShoppingAppDbContext> options) : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Customer> Customers { get; set; }
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<Seller> Sellers { get; set; }
         public DbSet<Cart> Carts { get; set; }
-        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
         public DbSet<Review> Reviews { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<PaymentDetail> PaymentDetails { get; set; }
         public DbSet<Address> Addresses { get; set; }
+        public DbSet<Product> Products { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // User to Customer one-to-one relationship
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Customer)
                 .WithOne()
-                .HasForeignKey<User>(u => u.CustomerId);
+                .HasForeignKey<Customer>(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade); // Ensure cascading delete
 
+            // User to Seller one-to-one relationship
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Seller)
+                .WithOne()
+                .HasForeignKey<Seller>(s => s.SellerId)
+                .OnDelete(DeleteBehavior.Cascade); // Ensure cascading delete
+
+            // Ensuring the primary keys are the same
+            modelBuilder.Entity<Customer>()
+                .Property(c => c.CustomerId)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<Seller>()
+                .Property(s => s.SellerId)
+                .ValueGeneratedNever();
+
+
+            // Order to OrderDetail one-to-many relationship
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.OrderDetails)
                 .WithOne(od => od.Order)
                 .HasForeignKey(od => od.OrderId);
 
+            // Cart to CartItem one-to-many relationship
             modelBuilder.Entity<Cart>()
                 .HasMany(c => c.Items)
                 .WithOne(ci => ci.Cart)
                 .HasForeignKey(ci => ci.CartId);
 
+            // Product to Review one-to-many relationship
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.Reviews)
                 .WithOne(r => r.Product)
                 .HasForeignKey(r => r.ProductId);
 
+            // Customer to Review one-to-many relationship
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Reviews)
                 .WithOne(r => r.Customer)
                 .HasForeignKey(r => r.CustomerId);
 
+            // Customer to Address one-to-many relationship
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Addresses)
                 .WithOne(a => a.Customer)
                 .HasForeignKey(a => a.CustomerId);
 
+            // Customer to Cart one-to-one relationship
+            modelBuilder.Entity<Customer>()
+                .HasOne(c => c.Cart)
+                .WithOne(cart => cart.Customer)
+                .HasForeignKey<Cart>(cart => cart.CustomerId);
+
+            // Category to Product one-to-many relationship
             modelBuilder.Entity<Category>()
                 .HasMany(c => c.Products)
                 .WithOne(p => p.Category)

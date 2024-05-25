@@ -5,6 +5,7 @@ using ApparelShoppingAppAPI.Services.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
 using ApparelShoppingAppAPI.Exceptions;
+using ApparelShoppingAppAPI.Repositories.Classes;
 
 namespace ApparelShoppingAppAPI.Services.Classes
 {
@@ -13,10 +14,12 @@ namespace ApparelShoppingAppAPI.Services.Classes
         private readonly IUserRegisterRepository _userRegisterRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICustomerRepository _customerRepository;
+        private readonly ISellerRepository _sellerRepository;
         private readonly ITokenService _tokenService;
 
         public UserService(IUserRepository userRepository, 
             ICustomerRepository customerRepository,
+            ISellerRepository sellerRepository,
             IUserRegisterRepository userRegisterRepository,
             ITokenService tokenService
             )
@@ -25,6 +28,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
             _userRepository = userRepository;
             _userRegisterRepository = userRegisterRepository;
             _tokenService = tokenService;
+            _sellerRepository = sellerRepository;
         }
 
         private byte[] EncryptPassword(string password, byte[] passwordSalt)
@@ -45,19 +49,27 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
             return true;
         }
-        private LoginReturnDTO MapCustomerToLoginReturn(User user)
+        private CustomerLoginReturnDTO MapCustomerToLoginReturn(User user)
         {
-            LoginReturnDTO returnDTO = new LoginReturnDTO();
-            returnDTO.CustomerId =user.CustomerId;
+            CustomerLoginReturnDTO returnDTO = new CustomerLoginReturnDTO();
+            returnDTO.CustomerId =user.UserId;
             returnDTO.Role = user.Role;
-            returnDTO.Token = _tokenService.GenerateToken(user.Customer);
+            returnDTO.Token = _tokenService.GenerateCustomerToken(user.Customer);
             return returnDTO;
         }
-        public async Task<LoginReturnDTO> Login(UserLoginDTO userLoginDTO)
+        private SellerLoginReturnDTO MapSellerToLoginReturn(User user)
+        {
+            SellerLoginReturnDTO returnDTO = new SellerLoginReturnDTO();
+            returnDTO.SellerId =user.UserId;
+            returnDTO.Role = user.Role;
+            returnDTO.Token = _tokenService.GenerateSellerToken(user.Seller);
+            return returnDTO;
+        }
+        public async Task<CustomerLoginReturnDTO> CustomerLogin(UserLoginDTO userLoginDTO)
         {
             try
             {
-                var user = await _userRepository.GetUserByEmail(userLoginDTO.Email);
+                var user = await _userRepository.GetCustomerUserByEmail(userLoginDTO.Email);
                 if (user == null)
                 {
                     throw new UnauthorizedUserException("Invalid Email or Password");
@@ -70,7 +82,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
                     {
                         throw new UnauthorizedUserException("Invalid Email or Password");
                     }
-                    LoginReturnDTO loginReturnDTO = MapCustomerToLoginReturn(user);
+                    CustomerLoginReturnDTO loginReturnDTO = MapCustomerToLoginReturn(user);
                     if(loginReturnDTO == null)
                     {
                         throw new NotAbelToLoginException("Error while generating token");
@@ -85,13 +97,56 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
         }
 
+        public async Task<SellerLoginReturnDTO> SellerLogin(UserLoginDTO userLoginDTO)
+        {
+            try
+            {
+                var user = await _userRepository.GetSellerUserByEmail(userLoginDTO.Email);
+                if (user == null)
+                {
+                    throw new UnauthorizedUserException("Invalid Email or Password");
+                }
+                var encryptedPassword = EncryptPassword(userLoginDTO.Password, user.PasswordHashKey);
+                bool isPasswordSame = ComparePassword(encryptedPassword, user.Password);
+                if (isPasswordSame)
+                {
+                    if (user.Seller == null)
+                    {
+                        throw new UnauthorizedUserException("Invalid Email or Password");
+                    }
+                    SellerLoginReturnDTO loginReturnDTO = MapSellerToLoginReturn(user);
+                    if (loginReturnDTO == null)
+                    {
+                        throw new NotAbelToLoginException("Error while generating token");
+                    }
+                    return loginReturnDTO;
+                }
+                throw new UnauthorizedUserException("Invalid Email or Password");
+            }
+            catch (Exception e)
+            {
+                throw new NotAbelToLoginException(e.Message);
+            }
+
+        }
         private RegisterReturnDTO MapCustomerToRegisterReturn(User user, Customer customer)
         {
             RegisterReturnDTO returnDTO = new RegisterReturnDTO();
             returnDTO.Name = customer.Name;
             returnDTO.Email = customer.Email;
+            returnDTO.Phone = customer.Phone;
             returnDTO.Role = user.Role;
-            returnDTO.Token = _tokenService.GenerateToken(user.Customer);
+            returnDTO.Token = _tokenService.GenerateCustomerToken(user.Customer);
+            return returnDTO;
+        }
+        private RegisterReturnDTO MapSellerToRegisterReturn(User user, Seller seller)
+        {
+            RegisterReturnDTO returnDTO = new RegisterReturnDTO();
+            returnDTO.Name = seller.Name;
+            returnDTO.Email = seller.Email;
+            returnDTO.Phone = seller.Phone;
+            returnDTO.Role = user.Role;
+            returnDTO.Token = _tokenService.GenerateSellerToken(user.Seller);
             return returnDTO;
         }
 
@@ -103,11 +158,12 @@ namespace ApparelShoppingAppAPI.Services.Classes
             userRegisterRepositoryDTO.Password = hMACSHA.ComputeHash(Encoding.UTF8.GetBytes(userRegisterDTO.Password));
             userRegisterRepositoryDTO.Name = userRegisterDTO.Name;
             userRegisterRepositoryDTO.Email = userRegisterDTO.Email;
+            userRegisterRepositoryDTO.Phone = userRegisterDTO.Phone;
             return userRegisterRepositoryDTO;
         }
        
 
-        public async Task<RegisterReturnDTO> Register(UserRegisterDTO userRegisterDTO)
+        public async Task<RegisterReturnDTO> CustomerRegister(UserRegisterDTO userRegisterDTO)
         {
             try
             {
@@ -121,7 +177,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
                     throw new PasswordMismatchException("Password and Confirm Password do not match");
                 }
                 UserRegisterRepositoryDTO userRegisterRepositoryDTO = MapUserRegisterRepositoryDTO(userRegisterDTO);
-                var (customer, user) = await _userRegisterRepository.AddUserWithTransaction(userRegisterRepositoryDTO);
+                var (customer, user) = await _userRegisterRepository.AddCustomerUserWithTransaction(userRegisterRepositoryDTO);
                 
                 if (customer == null || user == null)
                 {
@@ -135,6 +191,36 @@ namespace ApparelShoppingAppAPI.Services.Classes
                 throw new UnableToRegisterException(e.Message);
             }
         }
+
+        public async Task<RegisterReturnDTO> SellerRegister(UserRegisterDTO userRegisterDTO)
+        {
+            try
+            {
+                var existingSeller = await _sellerRepository.GetSellerByEmail(userRegisterDTO.Email);
+                if (existingSeller != null)
+                {
+                    throw new UserAlreadyExistsException("Email already exists");
+                }
+                if (userRegisterDTO.Password != userRegisterDTO.ConfirmPassword)
+                {
+                    throw new PasswordMismatchException("Password and Confirm Password do not match");
+                }
+                UserRegisterRepositoryDTO userRegisterRepositoryDTO = MapUserRegisterRepositoryDTO(userRegisterDTO);
+                var (seller, user) = await _userRegisterRepository.AddSellerUserWithTransaction(userRegisterRepositoryDTO);
+
+                if (seller == null || user == null)
+                {
+                    throw new UnableToRegisterException("Error while adding user");
+                }
+                RegisterReturnDTO registerReturnDTO = MapSellerToRegisterReturn(user, seller);
+                return registerReturnDTO;
+            }
+            catch (Exception e)
+            {
+                throw new UnableToRegisterException(e.Message);
+            }
+        }
+
     }
    
 
