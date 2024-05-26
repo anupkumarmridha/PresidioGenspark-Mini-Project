@@ -8,7 +8,7 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
         Task<IEnumerable<Product>> GetAllProducts();
         Task<Product> GetProductById(int id);
         Task<Product> GetProductByName(string name);
-        Task<Product> AddProduct(ProductDTO product);
+        Task<Product> AddProduct(ProductDTO product, int sellerId);
         Task<Product> UpdateProduct(int id, ProductDTO product);
         Task<Product> DeleteProduct(int id);
     }

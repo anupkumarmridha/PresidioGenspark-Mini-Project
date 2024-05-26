@@ -81,6 +81,11 @@ namespace ApparelShoppingAppAPI
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers();
+            //.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+            //    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            //});
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
@@ -111,6 +116,7 @@ namespace ApparelShoppingAppAPI
                 app.UseSwaggerUI();
             }
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

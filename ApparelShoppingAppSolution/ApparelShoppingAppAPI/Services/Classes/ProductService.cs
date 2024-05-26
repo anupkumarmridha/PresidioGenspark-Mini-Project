@@ -39,18 +39,11 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
         }
 
-        public async Task<Product> AddProduct(ProductDTO product)
+        public async Task<Product> AddProduct(ProductDTO product, int sellerId)
         {
             try
             {
-                Product newProduct = new Product
-                {
-                    Name = product.Name,
-                    Price = product.Price,
-                    Description = product.Description,
-                    ImageUrl = product.ImageUrl
-                };
-                return await _productRepository.Add(newProduct);
+                return await _productRepository.AddProductWithCategoryTransaction(product, sellerId);
             }
             catch (Exception ex)
             {
@@ -63,15 +56,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
         {
             try
             {
-                Product newProduct = new Product
-                {
-                    ProductId = id,
-                    Name = product.Name,
-                    Price = product.Price,
-                    Description = product.Description,
-                    ImageUrl = product.ImageUrl
-                };
-                return await _productRepository.Update(newProduct);
+                return await _productRepository.UpdateProductWithCategoryTransaction(id,product);
             }
             catch(Exception ex) { 
                 throw new Exception(ex.Message);
