@@ -49,23 +49,16 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
             return true;
         }
-        private CustomerLoginReturnDTO MapCustomerToLoginReturn(User user)
+        private LoginReturnDTO MapUserToLoginReturn(User user)
         {
-            CustomerLoginReturnDTO returnDTO = new CustomerLoginReturnDTO();
-            returnDTO.CustomerId =user.UserId;
+            LoginReturnDTO returnDTO = new LoginReturnDTO();
+            returnDTO.Id =user.UserId;
             returnDTO.Role = user.Role;
-            returnDTO.Token = _tokenService.GenerateCustomerToken(user.Customer);
+            returnDTO.Token = _tokenService.GenerateToken(user);
             return returnDTO;
         }
-        private SellerLoginReturnDTO MapSellerToLoginReturn(User user)
-        {
-            SellerLoginReturnDTO returnDTO = new SellerLoginReturnDTO();
-            returnDTO.SellerId =user.UserId;
-            returnDTO.Role = user.Role;
-            returnDTO.Token = _tokenService.GenerateSellerToken(user.Seller);
-            return returnDTO;
-        }
-        public async Task<CustomerLoginReturnDTO> CustomerLogin(UserLoginDTO userLoginDTO)
+        
+        public async Task<LoginReturnDTO> CustomerLogin(UserLoginDTO userLoginDTO)
         {
             try
             {
@@ -82,7 +75,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
                     {
                         throw new UnauthorizedUserException("Invalid Email or Password");
                     }
-                    CustomerLoginReturnDTO loginReturnDTO = MapCustomerToLoginReturn(user);
+                    LoginReturnDTO loginReturnDTO = MapUserToLoginReturn(user);
                     if(loginReturnDTO == null)
                     {
                         throw new NotAbelToLoginException("Error while generating token");
@@ -97,7 +90,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
         }
 
-        public async Task<SellerLoginReturnDTO> SellerLogin(UserLoginDTO userLoginDTO)
+        public async Task<LoginReturnDTO> SellerLogin(UserLoginDTO userLoginDTO)
         {
             try
             {
@@ -114,7 +107,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
                     {
                         throw new UnauthorizedUserException("Invalid Email or Password");
                     }
-                    SellerLoginReturnDTO loginReturnDTO = MapSellerToLoginReturn(user);
+                    LoginReturnDTO loginReturnDTO = MapUserToLoginReturn(user);
                     if (loginReturnDTO == null)
                     {
                         throw new NotAbelToLoginException("Error while generating token");
@@ -136,7 +129,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
             returnDTO.Email = customer.Email;
             returnDTO.Phone = customer.Phone;
             returnDTO.Role = user.Role;
-            returnDTO.Token = _tokenService.GenerateCustomerToken(user.Customer);
+            returnDTO.Token = _tokenService.GenerateToken(user);
             return returnDTO;
         }
         private RegisterReturnDTO MapSellerToRegisterReturn(User user, Seller seller)
@@ -146,7 +139,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
             returnDTO.Email = seller.Email;
             returnDTO.Phone = seller.Phone;
             returnDTO.Role = user.Role;
-            returnDTO.Token = _tokenService.GenerateSellerToken(user.Seller);
+            returnDTO.Token = _tokenService.GenerateToken(user);
             return returnDTO;
         }
 
