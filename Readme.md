@@ -6,21 +6,34 @@
 
 ### 1. **Authentication & Authorization**
    - **User Registration**
-     - Endpoint: `POST /api/auth/register`
-     - Request Body: `{ "username": "string", "email": "string", "password": "string" }`
-     - Response: `{ "message": "User registered successfully", "userId": "int" }`
+     - **Customer Registration** 
+         - Endpoint: `POST /api/User/CustomerRegister`
+         - Request Body: `{ "username": "string", "email": "string", "phone": "string" "password": "string" }`
+         - Response: `{ "message": "User registered successfully", "userId": "int" }`
+      
+     - **Seller Registration** 
+         - Endpoint: `POST /api/User/SellerRegister`
+         - Request Body: `{ "username": "string", "email": "string", "phone": "string" "password": "string" }`
+         - Response: `{ "message": "User registered successfully", "userId": "int" }`
+
    - **User Login**
-     - Endpoint: `POST /api/auth/login`
-     - Request Body: `{ "email": "string", "password": "string" }`
-     - Response: `{ "token": "string", "userId": "int" }`
+     - **Customer Login** 
+         - Endpoint: `POST /api/User/CustomerLogin`
+         - Request Body: `{ "email": "string", "password": "string" }`
+         - Response: `{ "token": "string", "userId": "int", "Role": "string" }`
+      
+     - **Seller Login** 
+         - Endpoint: `POST /api/User/SellerLogin`
+         - Request Body: `{ "email": "string", "password": "string" }`
+         - Response: `{ "token": "string", "userId": "int", "Role": "string"}`
 
 ### 2. **User Management**
    - **User Model**
-     - Properties: `UserId`, `Username`, `Email`, `Password`, `Role` (Customer/Seller/Admin)
+     - Properties: `PK->UserId`, `Hash Password`, `password`, `Role` (Customer/Seller/Admin)
    - **Customer Model**
-     - Properties: `CustomerId`, `UserId`, `FirstName`, `LastName`, `PhoneNumber`
+     - Properties: `PK->CustomerId(FK->UserId)` , `Email`, `FullName`, `PhoneNumber`
    - **Seller Model**
-     - Properties: `SellerId`, `UserId`, `ShopName`, `Description`
+     - Properties: `PK->SellerId((FK->UserId))`, `Email`, `FullName`, `PhoneNumber`
 
 ### 3. **Address Management**
    - **Address Model**
@@ -69,8 +82,10 @@
 ### API Endpoints Summary
 
 #### Authentication
-   - `POST /api/auth/register`
-   - `POST /api/auth/login`
+   -  `POST /api/User/CustomerRegister`
+   -  `POST /api/User/SellerRegister`
+   -  `POST /api/User/CustomerLogin`
+   - `POST /api/User/SellerLogin`
 
 #### Users
    - `GET /api/users/{id}`
