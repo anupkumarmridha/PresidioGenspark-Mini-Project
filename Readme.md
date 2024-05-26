@@ -33,7 +33,7 @@
    - **Customer Model**
      - Properties: `PK->CustomerId(FK->UserId)` , `Email`, `FullName`, `PhoneNumber`
    - **Seller Model**
-     - Properties: `PK->SellerId((FK->UserId))`, `Email`, `FullName`, `PhoneNumber`
+     - Properties: `PK->SellerId(FK->UserId)`, `Email`, `FullName`, `PhoneNumber`
 
 ### 3. **Address Management**
    - **Address Model**
