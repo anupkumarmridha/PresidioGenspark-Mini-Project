@@ -4,7 +4,6 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
 {
     public interface ITokenService
     {
-        public string GenerateCustomerToken(Customer customer);
-        public string GenerateSellerToken(Seller seller);
+        public string GenerateToken(User user);
     }
 }

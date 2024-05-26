@@ -18,9 +18,9 @@ namespace ApparelShoppingAppAPI.Controllers
         }
 
         [HttpPost("CustomerLogin")]
-        [ProducesResponseType(typeof(CustomerLoginReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(LoginReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<CustomerLoginReturnDTO>> CustomerLogin(UserLoginDTO userLoginDTO)
+        public async Task<ActionResult<LoginReturnDTO>> CustomerLogin(UserLoginDTO userLoginDTO)
         {
             try
             {
@@ -70,9 +70,9 @@ namespace ApparelShoppingAppAPI.Controllers
         }
 
         [HttpPost("SellerLogin")]
-        [ProducesResponseType(typeof(SellerLoginReturnDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(LoginReturnDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<CustomerLoginReturnDTO>> Login(UserLoginDTO userLoginDTO)
+        public async Task<ActionResult<LoginReturnDTO>> Login(UserLoginDTO userLoginDTO)
         {
             try
             {

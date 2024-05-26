@@ -15,6 +15,7 @@ namespace ApparelShoppingAppAPI.Contexts
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -61,6 +62,20 @@ namespace ApparelShoppingAppAPI.Contexts
                 .WithOne(r => r.Product)
                 .HasForeignKey(r => r.ProductId);
 
+            // Seller to Products one-to-many relationship
+            modelBuilder.Entity<Product>()
+            .HasOne(p => p.Seller)
+            .WithMany(s => s.Products)
+            .HasForeignKey(p => p.SellerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            // Product to Category many-to-one relationship
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany()
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             // Customer to Review one-to-many relationship
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Reviews)
@@ -79,11 +94,7 @@ namespace ApparelShoppingAppAPI.Contexts
                 .WithOne(cart => cart.Customer)
                 .HasForeignKey<Cart>(cart => cart.CustomerId);
 
-            // Category to Product one-to-many relationship
-            modelBuilder.Entity<Category>()
-                .HasMany(c => c.Products)
-                .WithOne(p => p.Category)
-                .HasForeignKey(p => p.CategoryId);
+            
         }
     }
 }

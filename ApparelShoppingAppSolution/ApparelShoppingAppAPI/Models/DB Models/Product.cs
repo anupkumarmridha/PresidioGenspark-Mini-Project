@@ -23,8 +23,7 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
 
         [Required]
         public DateTime CreationDate { get; set; } = DateTime.Now;
-        [Required]
-        public DateTime LastUpdatedDate { get; set; }
+        public DateTime LastUpdatedDate { get; set; } = DateTime.Now;
 
         [Required]
         public double Price { get; set; }

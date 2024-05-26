@@ -4,6 +4,7 @@ using ApparelShoppingAppAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApparelShoppingAppAPI.Migrations
 {
     [DbContext(typeof(ShoppingAppDbContext))]
-    partial class ShoppingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240526104006_UpdatedContexts")]
+    partial class UpdatedContexts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -443,9 +445,9 @@ namespace ApparelShoppingAppAPI.Migrations
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Product", b =>
                 {
                     b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Category", "Category")
-                        .WithMany()
+                        .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Seller", "Seller")
@@ -489,6 +491,11 @@ namespace ApparelShoppingAppAPI.Migrations
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Cart", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Customer", b =>

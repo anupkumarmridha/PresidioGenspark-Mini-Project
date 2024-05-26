@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApparelShoppingAppAPI.Models.DB_Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class Category
     {
         [Key]
@@ -15,8 +17,5 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
 
         [MaxLength(500)]
         public string? Description { get; set; }
-
-        // Navigation property
-        public virtual ICollection<Product>? Products { get; set; }
     }
 }
