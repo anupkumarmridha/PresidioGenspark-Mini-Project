@@ -12,11 +12,19 @@ namespace ApparelShoppingAppAPI.Services.Classes
         private readonly string _secretKey;
         private readonly SymmetricSecurityKey _key;
 
+
         public TokenService(IConfiguration configuration)
         {
             _secretKey = configuration.GetSection("TokenKey").GetSection("JWT").Value.ToString();
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
         }
+
+        #region GenerateToken
+        /// <summary>
+        /// Generate Token
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public string GenerateToken(User user)
         {
             var claims = new List<Claim>(){
@@ -28,5 +36,6 @@ namespace ApparelShoppingAppAPI.Services.Classes
             string token = new JwtSecurityTokenHandler().WriteToken(myToken);
             return token;
         }
+        #endregion
     }
 }

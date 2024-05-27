@@ -50,12 +50,6 @@ namespace ApparelShoppingAppAPI.Contexts
                 .WithOne(od => od.Order)
                 .HasForeignKey(od => od.OrderId);
 
-            // Cart to CartItem one-to-many relationship
-            modelBuilder.Entity<Cart>()
-                .HasMany(c => c.Items)
-                .WithOne(ci => ci.Cart)
-                .HasForeignKey(ci => ci.CartId);
-
             // Product to Review one-to-many relationship
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.Reviews)
@@ -64,10 +58,10 @@ namespace ApparelShoppingAppAPI.Contexts
 
             // Seller to Products one-to-many relationship
             modelBuilder.Entity<Product>()
-            .HasOne(p => p.Seller)
-            .WithMany(s => s.Products)
-            .HasForeignKey(p => p.SellerId)
-            .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(p => p.Seller)
+                .WithMany(s => s.Products)
+                .HasForeignKey(p => p.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Product to Category many-to-one relationship
             modelBuilder.Entity<Product>()
@@ -93,8 +87,6 @@ namespace ApparelShoppingAppAPI.Contexts
                 .HasOne(c => c.Cart)
                 .WithOne(cart => cart.Customer)
                 .HasForeignKey<Cart>(cart => cart.CustomerId);
-
-            
         }
     }
 }
