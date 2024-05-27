@@ -23,15 +23,18 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public DateTime CreationDate { get; set; } = DateTime.Now;
 
         [Required]
-        public DateTime LastUpdatedDate { get; set; }
+        public DateTime LastUpdatedDate { get; set; }=DateTime.Now;
 
         [Required]
         public CartStatus Status { get; set; } = CartStatus.Active;
+
+        [Required]
+        public decimal TotalPrice { get; set; }
 
         // Navigation property
         public virtual Customer Customer { get; set; }
 
         // Collection navigation property for items added to the cart
-        public virtual ICollection<CartItem> Items { get; set; }
+        public ICollection<CartItem> Items { get; set; }
     }
 }

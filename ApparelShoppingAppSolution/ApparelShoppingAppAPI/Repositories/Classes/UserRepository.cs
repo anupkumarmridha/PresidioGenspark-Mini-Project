@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ApparelShoppingAppAPI.Contexts;
+using ApparelShoppingAppAPI.Exceptions;
 using ApparelShoppingAppAPI.Models.DB_Models;
 using ApparelShoppingAppAPI.Repositories.Interfaces;
 
@@ -11,6 +12,12 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         {
         }
 
+        #region GetCustomerUserByEmail
+        /// <summary>
+        /// Get customer user by email
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>User, Customer</returns>
         public async Task<User> GetCustomerUserByEmail(string email)
         {
             var user = await _context.Users
@@ -18,7 +25,14 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                  .FirstOrDefaultAsync(u => u.Customer.Email == email);
             return user;
         }
+        #endregion GetCustomerUserByEmail
 
+        #region GetSellerUserByEmail
+        /// <summary>
+        /// Get seller user by email
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns>User, Seller</returns>
         public async Task<User> GetSellerUserByEmail(string email)
         {
             var user = await _context.Users
@@ -26,5 +40,6 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                  .FirstOrDefaultAsync(u => u.Seller.Email == email);
             return user;
         }
+        #endregion GetSellerUserByEmail
     }
 }

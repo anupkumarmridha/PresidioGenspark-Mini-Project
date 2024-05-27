@@ -5,6 +5,7 @@ using ApparelShoppingAppAPI.Models.DB_Models;
 using ApparelShoppingAppAPI.Models.DTO_Models;
 using ApparelShoppingAppAPI.Services.Interfaces;
 using System.Security.Claims;
+using ApparelShoppingAppAPI.Exceptions;
 
 namespace ApparelShoppingAppAPI.Controllers
 {
@@ -13,13 +14,18 @@ namespace ApparelShoppingAppAPI.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-
-        public ProductController(IProductService productService)
+        private readonly ILogger<ProductController> _logger;
+        public ProductController(IProductService productService, ILogger<ProductController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
 
-
+        #region GetProducts
+        /// <summary>
+        /// Get all products
+        /// </summary>
+        /// <returns>All Products</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IList<Product>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -32,11 +38,18 @@ namespace ApparelShoppingAppAPI.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return BadRequest(new ErrorModel(400, ex.Message));
             }
         }
+        #endregion GetProducts
 
-
+        #region GetProduct
+        /// <summary>
+        /// Get product by id or name
+        /// </summary>
+        /// <param name="idOrName"></param>
+        /// <returns>A Product</returns>
         [HttpGet("{idOrName}")]
         [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -61,15 +74,29 @@ namespace ApparelShoppingAppAPI.Controllers
 
                 return Ok(result);
             }
-            catch (Exception ex)
+            catch(ProductNotFoundException ex)
             {
                 return NotFound(new ErrorModel(404, ex.Message));
             }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, "An error occurred while retrieving the product"));
+            }
         }
+        #endregion GetProduct
+
+        #region AddProduct
+        /// <summary>
+        /// Add a product to the database
+        /// </summary>
+        /// <param name="productDTO"></param>
+        /// <returns></returns>
         [Authorize(Roles = "Admin,Seller")]
         [HttpPost]
         [ProducesResponseType(typeof(Product), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Product>> AddProduct(ProductDTO productDTO)
         {
             try
@@ -87,14 +114,24 @@ namespace ApparelShoppingAppAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ErrorModel(400, ex.Message));
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, "An error occurred while Adding Product"));
             }
         }
+        #endregion AddProduct
 
+        #region UpdateProduct
+        /// <summary>
+        /// Update a product
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="productDTO"></param>
+        /// <returns>Updated Product</returns>
         [Authorize(Roles = "Admin,Seller")]
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Product>> UpdateProduct(int id, ProductDTO productDTO)
         {
             try
@@ -102,16 +139,29 @@ namespace ApparelShoppingAppAPI.Controllers
                 var result = await _productService.UpdateProduct(id, productDTO);
                 return Ok(result);
             }
+            catch(ProductNotFoundException ex)
+            {
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
             catch (Exception ex)
             {
-                return BadRequest(new ErrorModel(400, ex.Message));
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ErrorModel(500, "An error occurred while Updateing the product"));
             }
         }
+        #endregion UpdateProduct
 
+        #region DeleteProduct
+        /// <summary>
+        /// Delete a product
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Deleted Product</returns>
         [Authorize(Roles = "Admin,Seller")]
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<Product>> DeleteProduct(int id)
         {
             try
@@ -119,10 +169,16 @@ namespace ApparelShoppingAppAPI.Controllers
                 var result = await _productService.DeleteProduct(id);
                 return Ok(result);
             }
+            catch (ProductNotFoundException ex)
+            {
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
             catch (Exception e)
             {
-                return NotFound(new ErrorModel(404, e.Message));
+                _logger.LogError(e.Message);
+                return StatusCode(500, new ErrorModel(500, "An error occurred while deleting the product"));
             }
         }
+        #endregion DeleteProduct
     }
 }

@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using ApparelShoppingAppAPI.Contexts;
+using ApparelShoppingAppAPI.Exceptions;
 using ApparelShoppingAppAPI.Models.DB_Models;
 using ApparelShoppingAppAPI.Repositories.Interfaces;
 using ApparelShoppingAppAPI.Models.DTO_Models;
@@ -20,9 +21,18 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             var product = await _context.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
+            if (product == null)
+            {
+                throw new ProductNotFoundException("Product not found");
+            }
             return product;
         }
 
+        #region GetAll
+        /// <summary>
+        /// Get all products
+        /// </summary>
+        /// <returns>List<Product></returns>
         public override async Task<IEnumerable<Product>> GetAll()
         {
             var products = await _context.Products
@@ -30,7 +40,16 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                 .ToListAsync();
             return products;
         }
+        #endregion GetAll
 
+        #region AddProductWithCategoryTransaction
+        /// <summary>
+        /// Add product with category transaction
+        /// </summary>
+        /// <param name="productDto"></param>
+        /// <param name="sellerId"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Product</exception>
         public async Task<Product> AddProductWithCategoryTransaction(ProductDTO productDto, int sellerId)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -73,6 +92,16 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                 }
             }
         }
+        #endregion AddProductWithCategoryTransaction
+
+        #region UpdateProductWithCategoryTransaction
+        /// <summary>
+        /// Update product with category transaction
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <param name="productDTO"></param>
+        /// <returns>Product</returns>
+        /// <exception cref="ProductNotFoundException"></exception>
         public async Task<Product> UpdateProductWithCategoryTransaction(int productId, ProductDTO productDTO)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -82,7 +111,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                     Product product = await base.GetById(productId);
                     if (product == null)
                     {
-                        throw new Exception("Product not found");
+                        throw new ProductNotFoundException("Product not found");
                     }
                     var category = await _context.Categories
                         .FirstOrDefaultAsync(c => c.Name.ToUpper() == productDTO.CategoryName.ToUpper());
@@ -116,19 +145,29 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                 catch (Exception)
                 {
                     await transaction.RollbackAsync();
-                    throw new Exception("Error while adding product");
+                    throw;
                 }
             }
         }
+        #endregion UpdateProductWithCategoryTransaction
+
+        #region GetProductByName
+        /// <summary>
+        /// Get Product By Name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>Product</returns>
+        /// <exception cref="ProductNotFoundException"></exception>
         public async Task<Product> GetProductByName(string name)
         {
             var product = await _context.Products
             .FirstOrDefaultAsync(p => p.Name.ToUpper() == name.ToUpper());
             if (product == null)
             {
-                throw new InvalidOperationException($"{name} not found.");
+                throw new ProductNotFoundException($"{name} not found.");
             }
             return product;
         }
+        #endregion GetProductByName
     }
 }

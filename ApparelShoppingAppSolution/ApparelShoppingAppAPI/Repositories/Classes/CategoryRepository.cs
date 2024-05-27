@@ -2,6 +2,7 @@
 using ApparelShoppingAppAPI.Models.DB_Models;
 using ApparelShoppingAppAPI.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using ApparelShoppingAppAPI.Exceptions;
 
 namespace ApparelShoppingAppAPI.Repositories.Classes
 {
@@ -17,7 +18,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             .FirstOrDefaultAsync(c => c.Name.ToUpper() == name.ToUpper());
             if (category == null)
             {
-                throw new InvalidOperationException($"{name} not found.");
+                throw new CategoryNotFoundException($"{name} not found.");
             }
             return category;
         }

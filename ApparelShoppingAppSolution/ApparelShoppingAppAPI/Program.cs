@@ -26,12 +26,14 @@ namespace ApparelShoppingAppAPI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserRegisterRepository, UserRegisterRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICartRepository, CartRepository>();
         }
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICartService, CartService>();
         }
 
         private static void AddJWTTokenSwaggerGen(IServiceCollection services)

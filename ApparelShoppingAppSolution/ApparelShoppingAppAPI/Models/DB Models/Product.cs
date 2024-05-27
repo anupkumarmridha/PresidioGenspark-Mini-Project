@@ -26,7 +26,7 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public DateTime LastUpdatedDate { get; set; } = DateTime.Now;
 
         [Required]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
 
         public string? ImageUrl { get; set; }
 
