@@ -3,7 +3,7 @@
 namespace ApparelShoppingAppAPI.Exceptions
 {
     [Serializable]
-    internal class UserAlreadyExistsException : Exception
+    public class UserAlreadyExistsException : Exception
     {
         public UserAlreadyExistsException()
         {

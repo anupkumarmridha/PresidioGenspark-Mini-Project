@@ -3,7 +3,7 @@
 namespace ApparelShoppingAppAPI.Exceptions
 {
     [Serializable]
-    internal class NotAbelToLoginException : Exception
+    public class NotAbelToLoginException : Exception
     {
         public NotAbelToLoginException()
         {

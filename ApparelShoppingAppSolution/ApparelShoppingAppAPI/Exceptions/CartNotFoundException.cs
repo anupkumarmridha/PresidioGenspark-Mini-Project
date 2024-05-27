@@ -3,7 +3,7 @@
 namespace ApparelShoppingAppAPI.Exceptions
 {
     [Serializable]
-    internal class CartNotFoundException : Exception
+    public class CartNotFoundException : Exception
     {
         public CartNotFoundException()
         {
