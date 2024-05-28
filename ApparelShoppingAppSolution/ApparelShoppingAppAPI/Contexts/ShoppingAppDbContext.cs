@@ -47,7 +47,7 @@ namespace ApparelShoppingAppAPI.Contexts
             // Order to OrderDetail one-to-many relationship
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.OrderDetails)
-                .WithOne(od => od.Order)
+                .WithOne()
                 .HasForeignKey(od => od.OrderId);
 
             // Product to Review one-to-many relationship
@@ -81,6 +81,13 @@ namespace ApparelShoppingAppAPI.Contexts
                 .HasMany(c => c.Addresses)
                 .WithOne(a => a.Customer)
                 .HasForeignKey(a => a.CustomerId);
+            
+            // Configure the one-to-many relationship between Order and Address
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Address)
+                .WithMany()
+                .HasForeignKey(o => o.AddressId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Customer to Cart one-to-one relationship
             modelBuilder.Entity<Customer>()

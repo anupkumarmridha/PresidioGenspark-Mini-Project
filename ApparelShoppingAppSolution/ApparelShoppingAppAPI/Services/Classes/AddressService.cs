@@ -29,6 +29,8 @@ namespace ApparelShoppingAppAPI.Services.Classes
                 {
                     CustomerId = customerId,
                     Street = address.Street,
+                    PhoneNumber = address.PhoneNumber,
+                    AddressType= address.AddressType,
                     City = address.City,
                     State = address.State,
                     ZipCode = address.ZipCode,
@@ -127,6 +129,8 @@ namespace ApparelShoppingAppAPI.Services.Classes
                 addressToUpdate.Street = addressDTO.Street;
                 addressToUpdate.City = addressDTO.City;
                 addressToUpdate.State = addressDTO.State;
+                addressToUpdate.PhoneNumber = addressDTO.PhoneNumber;
+                addressToUpdate.AddressType = addressDTO.AddressType;
                 addressToUpdate.Country = addressDTO.Country;
                 addressToUpdate.ZipCode = addressDTO.ZipCode;
 

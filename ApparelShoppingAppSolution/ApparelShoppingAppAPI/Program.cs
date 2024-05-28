@@ -33,6 +33,7 @@ namespace ApparelShoppingAppAPI
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
         }
         #endregion RegisterRepositories
 
@@ -48,6 +49,7 @@ namespace ApparelShoppingAppAPI
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICartService, CartService>();
             services.AddScoped<IAddressService, AddressService>();
+            services.AddScoped<IOrderService, OrderService>();
         }
         #endregion RegisterServices
 

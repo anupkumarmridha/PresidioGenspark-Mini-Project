@@ -13,16 +13,23 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public int CustomerId { get; set; }
 
         [Required]
-        public double TotalPrice { get; set; }
+        public int AddressId { get; set; }
+
+        [Required]
+        public decimal TotalPrice { get; set; }
 
         [Required]
         public DateTime OrderDate { get; set; }= DateTime.Now;
+        
+        [Required]
+        public DateTime OrderUpdatedDate { get; set; }= DateTime.Now;
 
         [Required]
-        public string DeliveryAddress { get; set; } = string.Empty;
+        public string OrderStatus { get; set; } = "Not Paid";
 
         // Navigation properties
         public virtual Customer Customer { get; set; }
+        public virtual Address Address { get; set; }
         public virtual ICollection<OrderDetails> OrderDetails { get; set; }
     }
 }
