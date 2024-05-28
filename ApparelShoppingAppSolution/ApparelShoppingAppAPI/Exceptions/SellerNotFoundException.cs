@@ -3,7 +3,7 @@
 namespace ApparelShoppingAppAPI.Exceptions
 {
     [Serializable]
-    internal class SellerNotFoundException : Exception
+    public class SellerNotFoundException : Exception
     {
         public SellerNotFoundException()
         {

@@ -19,10 +19,10 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public int Quantity { get; set; }
 
         [Required]
-        public double SubtotalPrice { get; set; }
+        public decimal SubtotalPrice { get; set; }
 
         // Navigation properties
-        public virtual Order? Order { get; set; }
+        //public virtual Order? Order { get; set; }
         public virtual Product? Product { get; set; }
     }
 }

@@ -32,6 +32,13 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         [MaxLength(100)]
         public string Country { get; set; }
 
+        [Required]
+        public string PhoneNumber { get; set; }
+
+        [Required]
+        public string AddressType { get; set; } = "Home";
+
+
         // Navigation property
         public virtual Customer? Customer { get; set; }
     }

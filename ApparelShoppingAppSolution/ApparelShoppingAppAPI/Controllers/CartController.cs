@@ -89,6 +89,10 @@ namespace ApparelShoppingAppAPI.Controllers
             {
                 return NotFound(new ErrorModel(404, ex.Message));
             }
+            catch (InsufficientProductQuantityException ex)
+            {
+                return BadRequest(new ErrorModel(400, ex.Message));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);

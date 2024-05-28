@@ -3,7 +3,7 @@
 namespace ApparelShoppingAppAPI.Exceptions
 {
     [Serializable]
-    internal class CategoryNotFoundException : Exception
+    public class CategoryNotFoundException : Exception
     {
         public CategoryNotFoundException()
         {
