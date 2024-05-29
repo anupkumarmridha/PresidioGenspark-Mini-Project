@@ -147,6 +147,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
                     throw new OrderNotFoundException("Order Not Found");
                 }
                 await _orderRepository.CancelOrder(order.OrderId);
+                await _orderRepository.Delete(order.OrderId);
                 return order;
             }
             catch (OrderNotFoundException)

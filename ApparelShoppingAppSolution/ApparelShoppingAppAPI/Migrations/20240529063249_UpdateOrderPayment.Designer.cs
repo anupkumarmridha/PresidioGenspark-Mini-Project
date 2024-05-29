@@ -4,6 +4,7 @@ using ApparelShoppingAppAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApparelShoppingAppAPI.Migrations
 {
     [DbContext(typeof(ShoppingAppDbContext))]
-    partial class ShoppingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240529063249_UpdateOrderPayment")]
+    partial class UpdateOrderPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,38 +253,6 @@ namespace ApparelShoppingAppAPI.Migrations
                     b.ToTable("OrderDetails");
                 });
 
-            modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.PaymentDetail", b =>
-                {
-                    b.Property<int>("PaymentDetailId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentDetailId"), 1L, 1);
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("PaymentDetailId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("PaymentDetails");
-                });
-
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Product", b =>
                 {
                     b.Property<int>("ProductId")
@@ -494,17 +464,6 @@ namespace ApparelShoppingAppAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.PaymentDetail", b =>
-                {
-                    b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Product", b =>

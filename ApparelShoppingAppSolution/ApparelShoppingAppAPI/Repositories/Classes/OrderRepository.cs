@@ -127,7 +127,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
 
                         // Update the product quantity
                         product.Quantity -= item.Quantity;
-                        await _context.Products.AddAsync(product);
+                        _context.Products.Update(product);
                         await _context.SaveChangesAsync();
 
                         // Add the order details from CartItems
