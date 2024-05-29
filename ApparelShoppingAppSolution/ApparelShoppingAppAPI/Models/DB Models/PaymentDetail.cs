@@ -22,7 +22,7 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public string Status { get; set; }
 
         [Required]
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
 
         // Navigation property
         public virtual Order? Order { get; set; }

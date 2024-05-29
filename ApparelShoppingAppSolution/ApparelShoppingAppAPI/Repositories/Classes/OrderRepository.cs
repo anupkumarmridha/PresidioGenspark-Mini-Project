@@ -9,11 +9,9 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
     public class OrderRepository : BaseRepository<int, Order>, IOrderRepository
     {
         private readonly IProductRepository _productRepository;
-        private readonly ICartRepository _cartRepository;
-        public OrderRepository(ShoppingAppDbContext context, IProductRepository productRepository, ICartRepository cartRepository) : base(context)
+        public OrderRepository(ShoppingAppDbContext context, IProductRepository productRepository) : base(context)
         {
             _productRepository = productRepository;
-            _cartRepository = cartRepository;
         }
 
         #region GetById
@@ -27,6 +25,8 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         {
             var order = await _context.Orders
                 .Include(o => o.OrderDetails)
+                 .ThenInclude(od => od.Product)
+                  .Include(o => o.Address)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
             if (order == null)
             {
@@ -59,6 +59,8 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         {
             return await _context.Orders
                 .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                  .Include(o => o.Address)
                 .Where(o => o.CustomerId == CustomerId)
                 .ToListAsync();
         }
@@ -125,7 +127,8 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
 
                         // Update the product quantity
                         product.Quantity -= item.Quantity;
-                        await _productRepository.Update(product);
+                        _context.Products.Update(product);
+                        await _context.SaveChangesAsync();
 
                         // Add the order details from CartItems
                         orderDetails.Add(new OrderDetails
@@ -170,6 +173,66 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             }
         }
         #endregion CheckOutCartWithTransaction
+
+        #region CancelOrder
+        public async Task<Order> CancelOrder(int orderId)
+        {
+            // Retrieve the order with its details, including products and address
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                throw new OrderNotFoundException("Order Not Found");
+            }
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Traverse the OrderDetails and update product quantities
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        var product = detail.Product;
+                        if (product == null)
+                        {
+                            throw new ProductNotFoundException($"Product with ID {detail.ProductId} not found");
+                        }
+
+                        // Update the product quantity
+                        product.Quantity += detail.Quantity;
+                        _context.Products.Update(product);
+                    }
+
+                    // Mark the order as canceled
+                    order.OrderStatus = "Canceled";
+                    _context.Orders.Update(order);
+
+                    // Save all changes
+                    await _context.SaveChangesAsync();
+
+                    // Commit the transaction
+                    await transaction.CommitAsync();
+                }
+                catch (ProductNotFoundException)
+                {
+                    // Rollback the transaction in case of an error
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    // Rollback the transaction in case of an error
+                    await transaction.RollbackAsync();
+                    throw new Exception("Error cancelling order", ex);
+                }
+            }
+
+            return order;
+        }
+        #endregion CancelOrder
 
     }
 }

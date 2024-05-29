@@ -16,6 +16,7 @@ namespace ApparelShoppingAppAPI.Contexts
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<PaymentDetail> PaymentDetails { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,7 +54,7 @@ namespace ApparelShoppingAppAPI.Contexts
             // Product to Review one-to-many relationship
             modelBuilder.Entity<Product>()
                 .HasMany(p => p.Reviews)
-                .WithOne(r => r.Product)
+                .WithOne()
                 .HasForeignKey(r => r.ProductId);
 
             // Seller to Products one-to-many relationship
@@ -73,7 +74,7 @@ namespace ApparelShoppingAppAPI.Contexts
             // Customer to Review one-to-many relationship
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Reviews)
-                .WithOne(r => r.Customer)
+                .WithOne()
                 .HasForeignKey(r => r.CustomerId);
 
             // Customer to Address one-to-many relationship

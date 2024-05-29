@@ -78,6 +78,10 @@ namespace ApparelShoppingAppAPI.Controllers
         #endregion Get Address
 
         #region Get All Address of Customer
+        /// <summary>
+        /// Get all addresses of a customer
+        /// </summary>
+        /// <returns></returns>
         [Authorize(Roles="Customer")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<Address>), StatusCodes.Status200OK)]
@@ -99,6 +103,12 @@ namespace ApparelShoppingAppAPI.Controllers
         #endregion Get All Address of Customer
 
         #region Update Address
+        /// <summary>
+        /// Update address for a customer
+        /// </summary>
+        /// <param name="addressId"></param>
+        /// <param name="addressDTO"></param>
+        /// <returns></returns>
         [Authorize(Roles = "Customer")]
         [HttpPut("{addressId}")]
         [ProducesResponseType(typeof(Address), StatusCodes.Status200OK)]
