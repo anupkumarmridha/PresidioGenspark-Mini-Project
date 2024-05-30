@@ -213,8 +213,8 @@ namespace ApparelShoppingAppAPI.Controllers
         }
         #endregion DeleteReview
 
-
         #region Filters
+
         #region GetAllProductReviewsByRating
         /// <summary>
         /// gets all the reviews that have the same ratingId
