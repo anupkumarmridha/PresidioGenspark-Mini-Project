@@ -40,7 +40,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                     await _context.SaveChangesAsync();
 
                     // Update order status to Paid
-                    order.isPaid = true;
+                    order.IsPaid = true;
                     _context.Update(order);
 
                     

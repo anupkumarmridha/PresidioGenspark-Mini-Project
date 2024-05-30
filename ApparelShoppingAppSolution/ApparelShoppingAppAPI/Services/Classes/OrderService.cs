@@ -130,6 +130,48 @@ namespace ApparelShoppingAppAPI.Services.Classes
         }
         #endregion GetAllOrdersByCustomer
 
+        #region GetAllActiveOrdersByCustomer
+        public async Task<IEnumerable<Order>> GetAllActiveOrdersByCustomer(int customerId)
+        {
+            try
+            {
+                return await _orderRepository.GetAllActiveOrdersByCustomer(customerId);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting active orders", e);
+            }
+        }
+        #endregion GetAllActiveOrdersByCustomer
+
+        #region GetAllCancelOrdersByCustomer
+        public async Task<IEnumerable<Order>> GetAllCancelOrdersByCustomer(int customerId)
+        {
+            try
+            {
+                return await _orderRepository.GetAllCancelOrdersByCustomer(customerId);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting cancel orders", e);
+            }
+        }
+        #endregion GetAllCancelOrdersByCustomer
+
+        #region GetAllOrdersBySeller
+        public async Task<IEnumerable<Order>> GetAllOrdersBySeller(int sellerId)
+        {
+            try
+            {
+                return await _orderRepository.GetAllOrdersBySeller(sellerId);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error getting orders", e);
+            }
+        }
+        #endregion GetAllOrdersBySeller
+
         #region CancelOrder
         /// <summary>
         /// Cancel an Order
@@ -147,7 +189,6 @@ namespace ApparelShoppingAppAPI.Services.Classes
                     throw new OrderNotFoundException("Order Not Found");
                 }
                 await _orderRepository.CancelOrder(order.OrderId);
-                await _orderRepository.Delete(order.OrderId);
                 return order;
             }
             catch (OrderNotFoundException)
@@ -208,5 +249,7 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
         }
         #endregion CartCheckOut
+
+
     }
 }
