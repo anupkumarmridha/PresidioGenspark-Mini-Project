@@ -156,9 +156,17 @@ namespace ApparelShoppingAppAPI.Services.Classes
         /// <param name="minRating"></param>
         /// <param name="sellerId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Product>> GetFilteredProducts(int? categoryId, decimal? minPrice, decimal? maxPrice, bool? availability, double? minRating, int? sellerId)
+        public async Task<IEnumerable<Product>> GetFilteredProducts(
+            int? categoryId, 
+            decimal? minPrice, 
+            decimal? maxPrice, 
+            bool? availability, 
+            double? minRating,
+            double? maxRating,
+            int? sellerId
+            )
         {
-            return await _productRepository.GetFilteredProducts(categoryId, minPrice, maxPrice, availability, minRating, sellerId);
+            return await _productRepository.GetFilteredProducts(categoryId, minPrice, maxPrice, availability, minRating, maxRating, sellerId);
         }
         #endregion GetFilteredProducts
     }
