@@ -106,6 +106,14 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         #endregion AddOrderWithTransaction
 
         #region CheckOutCartWithTransaction
+        /// <summary>
+        /// Checkout the cart with transaction
+        /// </summary>
+        /// <param name="cart"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        /// <exception cref="InsufficientProductQuantityException"></exception>
+        /// <exception cref="Exception"></exception>
         public async Task<Order> CheckOutCartWithTransaction(Cart cart, Address address)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
@@ -175,6 +183,13 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         #endregion CheckOutCartWithTransaction
 
         #region CancelOrder
+        /// <summary>
+        /// Cancel Order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        /// <exception cref="OrderNotFoundException"></exception>
+        /// <exception cref="Exception"></exception>
         public async Task<Order> CancelOrder(int orderId)
         {
             // Retrieve the order with its details, including products and address
@@ -208,6 +223,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
 
                     // Mark the order as canceled
                     order.OrderStatus = "Canceled";
+                    order.IsCanceled= true;
                     _context.Orders.Update(order);
 
                     // Save all changes
@@ -233,6 +249,43 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             return order;
         }
         #endregion CancelOrder
+
+        #region GetAllCancelOrdersByCustomer
+        /// <summary>
+        /// Get all canceled orders by customer
+        /// </summary>
+        /// <param name="CustomerId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Order>> GetAllCancelOrdersByCustomer(int CustomerId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderDetails)
+                .Where(o => o.CustomerId == CustomerId && o.IsCanceled==true && o.OrderStatus == "Canceled")
+                .ToListAsync();
+        }
+        #endregion GetAllCancelOrdersByCustomer
+
+        #region GetAllActiveOrdersByCustomer
+        public async Task<IEnumerable<Order>> GetAllActiveOrdersByCustomer(int CustomerId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderDetails)
+                .Where(o => o.CustomerId == CustomerId && o.IsCanceled==false && o.OrderStatus != "Canceled")
+                .ToListAsync();
+        }
+
+        #endregion GetAllActiveOrdersByCustomer
+
+        #region GetAllOrdersBySeller
+        public async Task<IEnumerable<Order>> GetAllOrdersBySeller(int SellerId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .Where(o => o.OrderDetails.Any(od => od.Product.SellerId == SellerId))
+                .ToListAsync();
+        }
+        #endregion GetAllOrdersBySeller
 
     }
 }
