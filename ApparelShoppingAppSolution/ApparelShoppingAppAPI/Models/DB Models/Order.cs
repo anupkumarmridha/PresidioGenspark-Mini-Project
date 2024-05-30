@@ -25,10 +25,16 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public DateTime OrderUpdatedDate { get; set; }= DateTime.Now;
 
         [Required]
-        public string OrderStatus { get; set; } = "Not Delivered";
+        public string OrderStatus { get; set; } = "Active";
+        
+        [Required]
+        public bool IsDelivered { get; set; } = false;
+        
+        [Required]
+        public bool IsCanceled { get; set; } = false;
 
         [Required]
-        public bool isPaid { get; set; } = false;
+        public bool IsPaid { get; set; } = false;
 
         // Navigation properties
         public virtual Customer Customer { get; set; }

@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace ApparelShoppingAppAPI.Controllers
 {
-    [Authorize(Roles = "Customer")]
+
     [Route("api/[controller]")]
     [ApiController]
     public class OrderController : ControllerBase
@@ -24,7 +24,12 @@ namespace ApparelShoppingAppAPI.Controllers
         }
 
         #region AddOrderForSingleProduct
-
+        /// <summary>
+        /// Add an Order by Customer for Single Product
+        /// </summary>
+        /// <param name="orderDTO"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Customer")]
         [HttpPost]
         [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -54,6 +59,7 @@ namespace ApparelShoppingAppAPI.Controllers
         #endregion AddOrderForSingleProduct
 
         #region GetOrder
+        [Authorize(Roles = "Customer")]
         [HttpGet("{orderId}")]
         [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -78,6 +84,11 @@ namespace ApparelShoppingAppAPI.Controllers
         #endregion GetOrder
 
         #region GetAllOrdersByCustomer
+        /// <summary>
+        /// Get All Orders By Customer
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Customer")]
         [HttpGet("Customer")]
         [ProducesResponseType(typeof(IEnumerable<Order>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
@@ -98,8 +109,89 @@ namespace ApparelShoppingAppAPI.Controllers
         }
         #endregion GetAllOrdersByCustomer
 
+        #region GetAllActiveOrdersByCustomer
+        /// <summary>
+        /// Get All Active Orders By Customer
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Customer")]
+        [HttpGet("active/customer")]
+        [ProducesResponseType(typeof(IEnumerable<Order>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllActiveOrdersByCustomer()
+        {
+            try
+            {
+                int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+                IEnumerable<Order> orders = await _orderService.GetAllActiveOrdersByCustomer(customerId);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        #endregion GetAllActiveOrdersByCustomer
+
+        #region GetAllCancelOrdersByCustomer
+        /// <summary>
+        /// Get All Cancel Orders By Customer
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "Customer")]
+        [HttpGet("cancelled/customer")]
+        [ProducesResponseType(typeof(IEnumerable<Order>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllCancelOrdersByCustomer()
+        {
+            try
+            {
+                int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+                IEnumerable<Order> orders = await _orderService.GetAllCancelOrdersByCustomer(customerId);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        #endregion GetAllCancelOrdersByCustomer
+
+        #region GetAllOrdersBySeller
+        /// <summary>
+        /// Get All Orders By Seller
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("seller")]
+        [Authorize(Roles = "Seller")]
+        [ProducesResponseType(typeof(IEnumerable<Order>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllOrdersBySeller()
+        {
+            try
+            {
+                int sellerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.Name));
+                IEnumerable<Order> orders = await _orderService.GetAllOrdersBySeller(sellerId);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+        #endregion GetAllOrdersBySeller
+
         #region CancelOrder
-        [HttpDelete("{orderId}")]
+        /// <summary>
+        /// Cancel Order
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Customer")]
+        [HttpPut("{orderId}")]
         [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
@@ -123,6 +215,7 @@ namespace ApparelShoppingAppAPI.Controllers
         #endregion CancelOrder
 
         #region CartCheckOut
+        [Authorize(Roles = "Customer")]
         [HttpPost("Checkout")]
         [ProducesResponseType(typeof(Order), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
