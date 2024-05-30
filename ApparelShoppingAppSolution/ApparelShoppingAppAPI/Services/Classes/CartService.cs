@@ -30,60 +30,81 @@ namespace ApparelShoppingAppAPI.Services.Classes
         /// <exception cref="ProductNotFoundException">Thrown when the product is not found or has an invalid price.</exception>
         public async Task<Cart> AddOrUpdateProductToCart(int userId, int productId, int quantity)
         {
-            var product = await _productRepository.GetById(productId);
-            if (product == null)
+            try
             {
-                throw new ProductNotFoundException("Product not found or invalid price");
-            }
+                var product = await _productRepository.GetById(productId);
 
-            // Retrieve the customer's cart, or create a new one if it doesn't exist
-            var cart = await _cartRepository.GetCartByUserId(userId);
-            if (cart == null)
-            {
-                cart = new Cart
+                if (product == null)
                 {
-                    CustomerId = userId,
-                    Items = new List<CartItem>()
-                };
-               await _cartRepository.Add(cart);
-            }
+                    throw new ProductNotFoundException("Product not found or invalid price");
+                }
+                if (product.Quantity < quantity)
+                {
+                    throw new InsufficientProductQuantityException($"Insufficient product quantity. Available Quantity = {product.Quantity}");
+                }
 
-            // Find the cart item for the specified product, or create a new one if it doesn't exist
-            var cartItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
-            if (cartItem == null)
-            {
-                cartItem = new CartItem
+                // Retrieve the customer's cart, or create a new one if it doesn't exist
+                var cart = await _cartRepository.GetCartByUserId(userId);
+                if (cart == null)
                 {
-                    ProductId = productId,
-                    Quantity = quantity,
-                    Price = product.Price * quantity
-                };
-                cart.Items.Add(cartItem);
-            }
-            else
-            {
-                // Update the quantity and price of the existing cart item
-                cartItem.Quantity += quantity;
-                if (cartItem.Quantity <= 0)
+                    cart = new Cart
+                    {
+                        CustomerId = userId,
+                        Items = new List<CartItem>()
+                    };
+                    await _cartRepository.Add(cart);
+                }
+
+                // Find the cart item for the specified product, or create a new one if it doesn't exist
+                var cartItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
+                if (cartItem == null)
                 {
-                    cart.Items.Remove(cartItem);
+                    cartItem = new CartItem
+                    {
+                        ProductId = productId,
+                        Quantity = quantity,
+                        Price = product.Price * quantity
+                    };
+                    cart.Items.Add(cartItem);
                 }
                 else
                 {
-                    // Update the price based on the new quantity
-                    cartItem.Price = product.Price * cartItem.Quantity;
+                    // Update the quantity and price of the existing cart item
+                    cartItem.Quantity += quantity;
+                    if (cartItem.Quantity <= 0)
+                    {
+                        cart.Items.Remove(cartItem);
+                    }
+                    else
+                    {
+                        // Update the price based on the new quantity
+                        cartItem.Price = product.Price * cartItem.Quantity;
+                    }
                 }
+
+                // Calculate the total price of the cart
+                cart.TotalPrice = cart.Items.Sum(item => item.Price);
+
+                // Update the cart's last updated date
+                cart.LastUpdatedDate = DateTime.Now;
+
+                await _cartRepository.Update(cart);
+
+                return cart;
             }
-
-            // Calculate the total price of the cart
-            cart.TotalPrice = cart.Items.Sum(item => item.Price);
-
-            // Update the cart's last updated date
-            cart.LastUpdatedDate = DateTime.Now;
-
-            await _cartRepository.Update(cart);
-
-            return cart;
+            catch(ProductNotFoundException ex)
+            {
+                throw new ProductNotFoundException(ex.Message);
+            }
+            catch (InsufficientProductQuantityException ex)
+            {
+                throw new InsufficientProductQuantityException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+           
         }
 
         #endregion AddOrUpdateProductToCart

@@ -4,6 +4,7 @@ using ApparelShoppingAppAPI.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApparelShoppingAppAPI.Migrations
 {
     [DbContext(typeof(ShoppingAppDbContext))]
-    partial class ShoppingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240528115158_UpdatedAddress")]
+    partial class UpdatedAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -210,9 +212,6 @@ namespace ApparelShoppingAppAPI.Migrations
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<bool>("isPaid")
-                        .HasColumnType("bit");
-
                     b.HasKey("OrderId");
 
                     b.HasIndex("AddressId");
@@ -249,38 +248,6 @@ namespace ApparelShoppingAppAPI.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetails");
-                });
-
-            modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.PaymentDetail", b =>
-                {
-                    b.Property<int>("PaymentDetailId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentDetailId"), 1L, 1);
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("PaymentDetailId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("PaymentDetails");
                 });
 
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Product", b =>
@@ -339,11 +306,8 @@ namespace ApparelShoppingAppAPI.Migrations
 
                     b.Property<string>("Comment")
                         .IsRequired()
-                        .HasMaxLength(1500)
-                        .HasColumnType("nvarchar(1500)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -354,7 +318,7 @@ namespace ApparelShoppingAppAPI.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdateDate")
+                    b.Property<DateTime>("ReviewDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ReviewId");
@@ -466,7 +430,7 @@ namespace ApparelShoppingAppAPI.Migrations
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Order", b =>
                 {
                     b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Address", "Address")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -484,7 +448,7 @@ namespace ApparelShoppingAppAPI.Migrations
 
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.OrderDetails", b =>
                 {
-                    b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Order", null)
+                    b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -496,18 +460,9 @@ namespace ApparelShoppingAppAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.PaymentDetail", b =>
-                {
-                    b.HasOne("ApparelShoppingAppAPI.Models.DB_Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Order");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Product", b =>
@@ -554,6 +509,11 @@ namespace ApparelShoppingAppAPI.Migrations
                         .HasForeignKey("ApparelShoppingAppAPI.Models.DB_Models.Seller", "SellerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Address", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("ApparelShoppingAppAPI.Models.DB_Models.Cart", b =>

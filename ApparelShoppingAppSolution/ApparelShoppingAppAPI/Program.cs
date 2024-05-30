@@ -19,6 +19,11 @@ namespace ApparelShoppingAppAPI
                 options.UseSqlServer(configuration.GetConnectionString("defaultConnection")));
         }
 
+        #region RegisterRepositories
+        /// <summary>
+        /// Registering Repositories
+        /// </summary>
+        /// <param name="services"></param>
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -27,15 +32,37 @@ namespace ApparelShoppingAppAPI
             services.AddScoped<IUserRegisterRepository, UserRegisterRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<IAddressRepository, AddressRepository>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
+            services.AddScoped<IReviewRepository, ReviewRepository>();
         }
+        #endregion RegisterRepositories
+
+        #region RegisterServices
+        /// <summary>
+        /// Registering Services
+        /// </summary>
+        /// <param name="services"></param>
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICartService, CartService>();
-        }
+            services.AddScoped<IAddressService, AddressService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IReviewService, ReviewService>();
 
+        }
+        #endregion RegisterServices
+
+        #region AddJWTTokenSwaggerGen
+        /// <summary>
+        /// Adding JWT Token to Swagger
+        /// </summary>
+        /// <param name="services"></param>
         private static void AddJWTTokenSwaggerGen(IServiceCollection services)
         {
             services.AddSwaggerGen(option =>
@@ -65,6 +92,14 @@ namespace ApparelShoppingAppAPI
                 });
             });
         }
+        #endregion AddJWTTokenSwaggerGen
+
+        #region ValidateToken
+        /// <summary>
+        /// Validate Token
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
         private static void ValidateToken(IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -80,6 +115,14 @@ namespace ApparelShoppingAppAPI
 
                 });
         }
+        #endregion ValidateToken
+
+        #region ConfigureServices
+        /// <summary>
+        /// Registering Services
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers();
@@ -100,7 +143,9 @@ namespace ApparelShoppingAppAPI
             RegisterRepositories(services);
             RegisterServices(services);
         }
+        #endregion ConfigureServices
 
+        #region Main
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -126,5 +171,6 @@ namespace ApparelShoppingAppAPI
 
             app.Run();
         }
+        #endregion Main
     }
 }

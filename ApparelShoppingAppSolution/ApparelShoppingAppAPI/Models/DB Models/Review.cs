@@ -16,17 +16,19 @@ namespace ApparelShoppingAppAPI.Models.DB_Models
         public int CustomerId { get; set; }
 
         [Required]
+        [Range(1, 5)]
         public int Rating { get; set; }
 
         [Required]
-        [MaxLength(1000)]
+        [MaxLength(1500)]
         public string Comment { get; set; }
 
         [Required]
-        public DateTime ReviewDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime UpdateDate { get; set; } = DateTime.Now;
 
         // Navigation properties
-        public virtual Product? Product { get; set; }
-        public virtual Customer? Customer { get; set; }
+    //     public virtual Product? Product { get; set; }
+     //   public virtual Customer? Customer { get; set; }
     }
 }
