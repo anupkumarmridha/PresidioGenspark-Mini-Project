@@ -16,50 +16,61 @@ namespace ApparelShoppingAppAPITest.RepositoriesTest
         public void Setup()
         {
             var options = new DbContextOptionsBuilder<ShoppingAppDbContext>()
-                .UseInMemoryDatabase("DummyDB")
+                .UseSqlite("DataSource=:memory:")
                 .Options;
+
             _context = new ShoppingAppDbContext(options);
+            _context.Database.OpenConnection();
+            _context.Database.EnsureCreated();
+
             _userRegisterRepository = new UserRegisterRepository(_context);
         }
 
-        //[Test]
-        //public async Task CustomerUserRegister()
-        //{
-        //    var userRegisterDTO = new UserRegisterRepositoryDTO
-        //    {
-        //        Name = "Test Customer",
-        //        Email = "customer@test.com",
-        //        Phone = "1234567890",
-        //        Password = Encoding.UTF8.GetBytes("password"),
-        //        PasswordHashKey = Encoding.UTF8.GetBytes("hashkey")
-        //    };
+        [TearDown]
+        public void TearDown()
+        {
+            _context.Database.CloseConnection();
+            _context.Dispose();
+        }
 
-        //    var (customer, user) = await _userRegisterRepository.AddCustomerUserWithTransaction(userRegisterDTO);
+        [Test]
+        public async Task CustomerUserRegister()
+        {
+            var userRegisterDTO = new UserRegisterRepositoryDTO
+            {
+                Name = "Test Customer",
+                Email = "customer@test.com",
+                Phone = "1234567890",
+                Password = Encoding.UTF8.GetBytes("password"),
+                PasswordHashKey = Encoding.UTF8.GetBytes("hashkey")
+            };
 
-        //    Assert.IsNotNull(customer);
-        //    Assert.IsNotNull(user);
-        //    Assert.AreEqual("Customer", user.Role);
-        //    Assert.AreEqual(user.UserId, customer.CustomerId);
-        //}
+            var (customer, user) = await _userRegisterRepository.AddCustomerUserWithTransaction(userRegisterDTO);
 
-        //[Test]
-        //public async Task SellerUserRegister()
-        //{
-        //    var userRegisterDTO = new UserRegisterRepositoryDTO
-        //    {
-        //        Name = "Test Seller",
-        //        Email = "seller@test.com",
-        //        Phone = "0987654321",
-        //        Password = Encoding.UTF8.GetBytes("password"),
-        //        PasswordHashKey = Encoding.UTF8.GetBytes("hashkey")
-        //    };
+            Assert.IsNotNull(customer);
+            Assert.IsNotNull(user);
+            Assert.AreEqual("Customer", user.Role);
+            Assert.AreEqual(user.UserId, customer.CustomerId);
+        }
 
-        //    var (seller, user) = await _userRegisterRepository.AddSellerUserWithTransaction(userRegisterDTO);
+        [Test]
+        public async Task SellerUserRegister()
+        {
+            var userRegisterDTO = new UserRegisterRepositoryDTO
+            {
+                Name = "Test Seller",
+                Email = "seller@test.com",
+                Phone = "0987654321",
+                Password = Encoding.UTF8.GetBytes("password"),
+                PasswordHashKey = Encoding.UTF8.GetBytes("hashkey")
+            };
 
-        //    Assert.IsNotNull(seller);
-        //    Assert.IsNotNull(user);
-        //    Assert.AreEqual("Seller", user.Role);
-        //    Assert.AreEqual(user.UserId, seller.SellerId);
-        //}
+            var (seller, user) = await _userRegisterRepository.AddSellerUserWithTransaction(userRegisterDTO);
+
+            Assert.IsNotNull(seller);
+            Assert.IsNotNull(user);
+            Assert.AreEqual("Seller", user.Role);
+            Assert.AreEqual(user.UserId, seller.SellerId);
+        }
     }
 }

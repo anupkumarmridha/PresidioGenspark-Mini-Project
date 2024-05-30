@@ -1,146 +1,167 @@
-﻿using ApparelShoppingAppAPI.Contexts;
-using ApparelShoppingAppAPI.Exceptions;
+﻿using ApparelShoppingAppAPI.Exceptions;
 using ApparelShoppingAppAPI.Models.DB_Models;
-using ApparelShoppingAppAPI.Models.DTO_Models;
-using ApparelShoppingAppAPI.Repositories.Classes;
 using ApparelShoppingAppAPI.Repositories.Interfaces;
 using ApparelShoppingAppAPI.Services.Classes;
-using ApparelShoppingAppAPI.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ApparelShoppingAppAPITest.ServicesTest
 {
-    public class CartServiceTest
+    public class CartServiceTests
     {
-        private ShoppingAppDbContext _context;
-        private ICartService _cartService;
-        private ICartRepository _cartRepository;
-        private IProductRepository _productRepository;
+        private Mock<ICartRepository> _cartRepositoryMock;
+        private Mock<IProductRepository> _productRepositoryMock;
+        private CartService _cartService;
 
         [SetUp]
         public void Setup()
         {
-            var options = new DbContextOptionsBuilder<ShoppingAppDbContext>()
-                .UseInMemoryDatabase("TestDatabase")
-                .Options;
-
-            _context = new ShoppingAppDbContext(options);
-            _cartRepository = new CartRepository(_context);
-            _productRepository = new ProductRepository(_context); // Assuming you have a ProductRepository
-            _cartService = new CartService(_cartRepository, _productRepository);
+            _cartRepositoryMock = new Mock<ICartRepository>();
+            _productRepositoryMock = new Mock<IProductRepository>();
+            _cartService = new CartService(_cartRepositoryMock.Object, _productRepositoryMock.Object);
         }
 
         [Test]
-        public async Task AddOrUpdateProductToCart_AddNewProduct()
+        public async Task AddOrUpdateProductToCart_ProductNotFound_ThrowsProductNotFoundException()
         {
-            var product = new Product { ProductId = 1, Name = "Product1", Price = 100 };
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            // Arrange
+            var userId = 1;
+            var productId = 1;
+            var quantity = 1;
+            _productRepositoryMock.Setup(repo => repo.GetById(productId)).ReturnsAsync((Product)null);
 
-            var cart = await _cartService.AddOrUpdateProductToCart(1, 1, 1);
-
-            Assert.IsNotNull(cart);
-            Assert.AreEqual(1, cart.Items.Count); 
-            var cartItem = cart.Items.FirstOrDefault(); 
-            Assert.IsNotNull(cartItem); 
-            Assert.AreEqual(1, cartItem.ProductId); 
-            Assert.AreEqual(1, cartItem.Quantity);
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<ProductNotFoundException>(() => _cartService.AddOrUpdateProductToCart(userId, productId, quantity));
+            Assert.AreEqual("Product not found or invalid price", ex.Message);
         }
 
         [Test]
-        public async Task AddOrUpdateProductToCart_UpdateExistingProduct()
+        public async Task AddOrUpdateProductToCart_InsufficientQuantity_ThrowsInsufficientProductQuantityException()
         {
-            var product = new Product { ProductId = 1, Name = "Product1", Price = 100 };
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            // Arrange
+            var userId = 1;
+            var productId = 1;
+            var quantity = 10;
+            var product = new Product { ProductId = productId, Quantity = 5, Price = 100 };
+            _productRepositoryMock.Setup(repo => repo.GetById(productId)).ReturnsAsync(product);
 
-            var cart = await _cartService.AddOrUpdateProductToCart(1, 1, 1);
-            cart = await _cartService.AddOrUpdateProductToCart(1, 1, 1);
-
-            Assert.IsNotNull(cart);
-            Assert.AreEqual(1, cart.Items.Count);
-            var cartItem = cart.Items.FirstOrDefault();
-            Assert.IsNotNull(cartItem);
-            Assert.AreEqual(1, cartItem.ProductId);
-            Assert.AreEqual(2, cartItem.Quantity);
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<InsufficientProductQuantityException>(() => _cartService.AddOrUpdateProductToCart(userId, productId, quantity));
+            Assert.AreEqual("Insufficient product quantity. Available Quantity = 5", ex.Message);
         }
 
         [Test]
-        public void AddOrUpdateProductToCart_ProductNotFound()
+        public async Task AddOrUpdateProductToCart_NewProduct_AddsToCart()
         {
-            Assert.ThrowsAsync<ProductNotFoundException>(async () =>
-            {
-                await _cartService.AddOrUpdateProductToCart(1, 999, 1);
-            });
+            // Arrange
+            var userId = 1;
+            var productId = 1;
+            var quantity = 2;
+            var product = new Product { ProductId = productId, Quantity = 10, Price = 50 };
+            var cart = new Cart { CustomerId = userId, Items = new List<CartItem>() };
+
+            _productRepositoryMock.Setup(repo => repo.GetById(productId)).ReturnsAsync(product);
+            _cartRepositoryMock.Setup(repo => repo.GetCartByUserId(userId)).ReturnsAsync(cart);
+
+            // Act
+            var updatedCart = await _cartService.AddOrUpdateProductToCart(userId, productId, quantity);
+
+            // Assert
+            Assert.AreEqual(1, updatedCart.Items.Count);
+            Assert.AreEqual(productId, updatedCart.Items.First().ProductId);
+            Assert.AreEqual(quantity, updatedCart.Items.First().Quantity);
+            Assert.AreEqual(100, updatedCart.Items.First().Price);
+            Assert.AreEqual(100, updatedCart.TotalPrice);
         }
 
         [Test]
-        public async Task RemoveProductFromCart_RemoveExistingProduct()
+        public async Task AddOrUpdateProductToCart_ExistingProduct_UpdatesQuantity()
         {
-            var product = new Product { ProductId = 1, Name = "Product1", Price = 100 };
-            await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            // Arrange
+            var userId = 1;
+            var productId = 1;
+            var quantity = 2;
+            var product = new Product { ProductId = productId, Quantity = 10, Price = 50 };
+            var cartItem = new CartItem { ProductId = productId, Quantity = 1, Price = 50 };
+            var cart = new Cart { CustomerId = userId, Items = new List<CartItem> { cartItem } };
 
-            var cart = await _cartService.AddOrUpdateProductToCart(1, 1, 1);
-            cart = await _cartService.RemoveProductFromCart(1, 1);
+            _productRepositoryMock.Setup(repo => repo.GetById(productId)).ReturnsAsync(product);
+            _cartRepositoryMock.Setup(repo => repo.GetCartByUserId(userId)).ReturnsAsync(cart);
 
-            Assert.IsNotNull(cart);
-            Assert.AreEqual(0, cart.Items.Count);
+            // Act
+            var updatedCart = await _cartService.AddOrUpdateProductToCart(userId, productId, quantity);
+
+            // Assert
+            Assert.AreEqual(1, updatedCart.Items.Count);
+            Assert.AreEqual(productId, updatedCart.Items.First().ProductId);
+            Assert.AreEqual(3, updatedCart.Items.First().Quantity); // 1 + 2
+            Assert.AreEqual(150, updatedCart.Items.First().Price); // 3 * 50
+            Assert.AreEqual(150, updatedCart.TotalPrice);
         }
 
         [Test]
-        public void RemoveProductFromCart_ProductNotFoundInCart()
+        public async Task RemoveProductFromCart_ProductNotFoundInCart_ThrowsProductNotFoundException()
         {
-            Assert.ThrowsAsync<ProductNotFoundException>(async () =>
-            {
-                var product = new Product { ProductId = 1, Name = "Product1", Price = 100 };
-                await _context.Products.AddAsync(product);
-                await _context.SaveChangesAsync();
+            // Arrange
+            var userId = 1;
+            var productId = 1;
+            var cart = new Cart { CustomerId = userId, Items = new List<CartItem>() };
 
-                await _cartService.RemoveProductFromCart(1, 1);
-            });
+            _cartRepositoryMock.Setup(repo => repo.GetCartByUserId(userId)).ReturnsAsync(cart);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<ProductNotFoundException>(() => _cartService.RemoveProductFromCart(userId, productId));
+            Assert.AreEqual("Product not found in cart", ex.Message);
         }
 
         [Test]
-        public void RemoveProductFromCart_CartNotFound()
+        public async Task RemoveProductFromCart_ProductExists_RemovesProductFromCart()
         {
-            Assert.ThrowsAsync<CartNotFoundException>(async () =>
-            {
-                await _cartService.RemoveProductFromCart(1, 1);
-            });
+            // Arrange
+            var userId = 1;
+            var productId = 1;
+            var cartItem = new CartItem { ProductId = productId, Quantity = 1, Price = 50 };
+            var cart = new Cart { CustomerId = userId, Items = new List<CartItem> { cartItem } };
+
+            _cartRepositoryMock.Setup(repo => repo.GetCartByUserId(userId)).ReturnsAsync(cart);
+
+            // Act
+            var updatedCart = await _cartService.RemoveProductFromCart(userId, productId);
+
+            // Assert
+            Assert.AreEqual(0, updatedCart.Items.Count);
+            Assert.AreEqual(0, updatedCart.TotalPrice);
         }
 
         [Test]
-        public async Task GetCartByUserId_CartExists()
+        public async Task GetCartByUserId_CartNotFound_ThrowsCartNotFoundException()
         {
-            var cart = new Cart
-            {
-                CustomerId = 1,
-                Items = new List<CartItem>
-                {
-                    new CartItem { ProductId = 1, Quantity = 1, Price = 100 }
-                }
-            };
-            await _context.Carts.AddAsync(cart);
-            await _context.SaveChangesAsync();
+            // Arrange
+            var userId = 1;
+            _cartRepositoryMock.Setup(repo => repo.GetCartByUserId(userId)).ThrowsAsync(new CartNotFoundException("Cart Not Found"));
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<CartNotFoundException>(() => _cartService.GetCartByUserId(userId));
+            Assert.AreEqual("Cart Not Found", ex.Message);
+        }
 
-            var result = await _cartService.GetCartByUserId(1);
+        [Test]
+        public async Task GetCartByUserId_CartExists_ReturnsCart()
+        {
+            // Arrange
+            var userId = 1;
+            var cart = new Cart { CustomerId = userId, Items = new List<CartItem>() };
+            _cartRepositoryMock.Setup(repo => repo.GetCartByUserId(userId)).ReturnsAsync(cart);
 
+            // Act
+            var result = await _cartService.GetCartByUserId(userId);
+
+            // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.CustomerId);
-        }
-
-        [Test]
-        public void GetCartByUserId_CartNotFound()
-        {
-            Assert.ThrowsAsync<CartNotFoundException>(async () =>
-            {
-                await _cartService.GetCartByUserId(1);
-            });
+            Assert.AreEqual(userId, result.CustomerId);
         }
     }
 }
