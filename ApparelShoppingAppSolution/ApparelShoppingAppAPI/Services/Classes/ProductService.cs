@@ -121,7 +121,6 @@ namespace ApparelShoppingAppAPI.Services.Classes
         }
         #endregion DeleteProduct
 
-
         #region GetProductByName
         /// <summary>
         /// Get product by name
@@ -145,5 +144,22 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
         }
         #endregion GetProductByName
+
+        #region GetFilteredProducts
+        /// <summary>
+        /// Get Filtered Products
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="minPrice"></param>
+        /// <param name="maxPrice"></param>
+        /// <param name="availability"></param>
+        /// <param name="minRating"></param>
+        /// <param name="sellerId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Product>> GetFilteredProducts(int? categoryId, decimal? minPrice, decimal? maxPrice, bool? availability, double? minRating, int? sellerId)
+        {
+            return await _productRepository.GetFilteredProducts(categoryId, minPrice, maxPrice, availability, minRating, sellerId);
+        }
+        #endregion GetFilteredProducts
     }
 }

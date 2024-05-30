@@ -180,5 +180,33 @@ namespace ApparelShoppingAppAPI.Controllers
             }
         }
         #endregion DeleteProduct
+
+        #region GetFilteredProducts
+        /// <summary>
+        /// Get filtered products
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="minPrice"></param>
+        /// <param name="maxPrice"></param>
+        /// <param name="availability"></param>
+        /// <param name="minRating"></param>
+        /// <param name="sellerId"></param>
+        /// <returns></returns>
+        [HttpGet("filter")]
+        [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetFilteredProducts([FromQuery] int? categoryId, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] bool? availability, [FromQuery] double? minRating, [FromQuery] int? sellerId)
+        {
+            try
+            {
+                var products = await _productService.GetFilteredProducts(categoryId, minPrice, maxPrice, availability, minRating, sellerId);
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+        #endregion GetFilteredProducts
     }
 }

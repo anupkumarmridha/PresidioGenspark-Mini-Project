@@ -15,7 +15,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         public ProductRepository(ShoppingAppDbContext context) : base(context)
         {
         }
-
+        #region GetById
         public override async Task<Product> GetById(int id)
         {
             var product = await _context.Products
@@ -27,6 +27,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             }
             return product;
         }
+        #endregion GetById
 
         #region GetAll
         /// <summary>
@@ -169,5 +170,56 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             return product;
         }
         #endregion GetProductByName
+
+        #region GetFilteredProducts
+        /// <summary>
+        /// Get Filtered Products
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <param name="minPrice"></param>
+        /// <param name="maxPrice"></param>
+        /// <param name="availability"></param>
+        /// <param name="minRating"></param>
+        /// <param name="sellerId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Product>> GetFilteredProducts(int? categoryId, decimal? minPrice, decimal? maxPrice, bool? availability, double? minRating, int? sellerId)
+        {
+            var query = _context.Products.Include(p => p.Reviews).AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            if (availability.HasValue)
+            {
+                query = query.Where(p => (availability.Value && p.Quantity > 0) || (!availability.Value && p.Quantity == 0));
+            }
+
+            if (minRating.HasValue)
+            {
+                query = query.Where(p => p.Reviews.Average(r => r.Rating) >= minRating.Value);
+            }
+
+            if (sellerId.HasValue)
+            {
+                query = query.Where(p => p.SellerId == sellerId.Value);
+            }
+
+            return await query.ToListAsync();
+        }
+        #endregion GetFilteredProducts
+
+
     }
 }
