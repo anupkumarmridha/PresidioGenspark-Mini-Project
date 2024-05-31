@@ -233,6 +233,10 @@ namespace ApparelShoppingAppAPI.Controllers
             {
                 return NotFound(new ErrorModel(404, ex.Message));
             }
+            catch (CartEmptyException ex)
+            {
+                return NotFound(new ErrorModel(404, ex.Message));
+            }
             catch (AddressNotFoundException ex)
             {
                 return NotFound(new ErrorModel(404, ex.Message));
