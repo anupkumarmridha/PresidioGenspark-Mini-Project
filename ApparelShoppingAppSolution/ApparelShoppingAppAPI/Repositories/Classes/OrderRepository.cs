@@ -123,6 +123,9 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                     // Create the order details
                     var orderDetails = new List<OrderDetails>();
 
+                    // List to store items to be removed
+                    var itemsToRemove = new List<CartItem>();
+
                     // Traverse through the cart items
                     foreach (var item in cart.Items)
                     {
@@ -146,7 +149,13 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                             SubtotalPrice = product.Price * item.Quantity
                         });
 
-                        //Remove the item from the cart
+                        // Add item to the list of items to be removed
+                        itemsToRemove.Add(item);
+                    }
+
+                    // Remove the items from the cart outside the foreach loop
+                    foreach (var item in itemsToRemove)
+                    {
                         cart.Items.Remove(item);
                     }
 
@@ -155,7 +164,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                     {
                         CustomerId = cart.CustomerId,
                         AddressId = address.AddressId,
-                        TotalPrice = cart.TotalPrice,
+                        TotalPrice = orderDetails.Sum(od => od.SubtotalPrice),
                         OrderDetails = orderDetails
                     };
 
@@ -172,6 +181,12 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
 
                     return order;
                 }
+                catch (InsufficientProductQuantityException)
+                {
+                    // Rollback transaction
+                    await transaction.RollbackAsync();
+                    throw;
+                }
                 catch (Exception e)
                 {
                     // Rollback transaction
@@ -180,6 +195,7 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                 }
             }
         }
+
         #endregion CheckOutCartWithTransaction
 
         #region CancelOrder
