@@ -203,7 +203,6 @@ namespace ApparelShoppingAppAPI.Controllers
             [FromQuery] decimal? maxPrice, [FromQuery] bool? availability,
             
             [FromQuery] double? minRating, [FromQuery] double? maxRating,
-            [FromQuery] double? maxRating,
             [FromQuery] int? sellerId)
         {
             try
@@ -218,9 +217,7 @@ namespace ApparelShoppingAppAPI.Controllers
                     
                     availability,
                     
-                    minRating,
-                    maxRating,
-                   
+                    minRating,                  
                     maxRating,
                     sellerId);
                 return Ok(products);

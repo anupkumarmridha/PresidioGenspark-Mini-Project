@@ -169,8 +169,6 @@ namespace ApparelShoppingAppAPI.Services.Classes
             
             double? minRating,
             double? maxRating,
-           
-            double? maxRating,
             int? sellerId
             
             )

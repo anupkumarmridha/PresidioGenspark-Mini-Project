@@ -23,8 +23,6 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
             
             double? minRating,
             double? maxRating,
-            
-            double? maxRating, 
             int? sellerId
             
             );
