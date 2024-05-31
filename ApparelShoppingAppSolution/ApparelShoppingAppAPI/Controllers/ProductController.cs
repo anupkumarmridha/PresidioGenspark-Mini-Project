@@ -195,11 +195,22 @@ namespace ApparelShoppingAppAPI.Controllers
         [HttpGet("filter")]
         [ProducesResponseType(typeof(Product), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetFilteredProducts([FromQuery] int? categoryId, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] bool? availability, [FromQuery] double? minRating, [FromQuery] int? sellerId)
+        public async Task<IActionResult> GetFilteredProducts(
+            [FromQuery] int? categoryId, [FromQuery] decimal? minPrice,
+            [FromQuery] decimal? maxPrice, [FromQuery] bool? availability,
+            [FromQuery] double? minRating, [FromQuery] double? maxRating,
+            [FromQuery] int? sellerId)
         {
             try
             {
-                var products = await _productService.GetFilteredProducts(categoryId, minPrice, maxPrice, availability, minRating, sellerId);
+                var products = await _productService.GetFilteredProducts(
+                    categoryId,
+                    minPrice,
+                    maxPrice,
+                    availability,
+                    minRating,
+                    maxRating,
+                    sellerId);
                 return Ok(products);
             }
             catch (Exception ex)
