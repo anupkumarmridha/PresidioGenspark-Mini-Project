@@ -12,13 +12,19 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
         Task<Product> UpdateProduct(int id, ProductDTO product);
         Task<Product> DeleteProduct(int id);
         Task<IEnumerable<Product>> GetFilteredProducts(
+            
             int? categoryId,
+            
             decimal? minPrice,
+            
             decimal? maxPrice,
+            
             bool? availability,
+            
             double? minRating,
             double? maxRating,
             int? sellerId
+            
             );
     }
 }

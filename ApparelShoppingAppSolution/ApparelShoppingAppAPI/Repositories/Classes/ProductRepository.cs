@@ -222,6 +222,10 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             {
                 query = query.Where(p => p.Reviews.Average(r => r.Rating) <= maxRating.Value);
             }
+            if (maxRating.HasValue)
+            {
+                query = query.Where(p => p.Reviews.Average(r => r.Rating) <= maxRating.Value);
+            }
 
             if (sellerId.HasValue)
             {
