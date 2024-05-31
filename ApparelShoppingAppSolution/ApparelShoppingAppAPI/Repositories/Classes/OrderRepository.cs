@@ -120,6 +120,10 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             {
                 try
                 {
+                    if(cart.Items.Count == 0)
+                    {
+                        throw new CartEmptyException("Cart is empty");
+                    }
                     // Create the order details
                     var orderDetails = new List<OrderDetails>();
 
@@ -180,7 +184,14 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                     await transaction.CommitAsync();
 
                     return order;
-                }catch(InsufficientProductQuantityException)
+                }
+                catch (CartEmptyException)
+                {
+                    // Rollback transaction
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+                catch(InsufficientProductQuantityException)
                 {
                     // Rollback transaction
                     await transaction.RollbackAsync();

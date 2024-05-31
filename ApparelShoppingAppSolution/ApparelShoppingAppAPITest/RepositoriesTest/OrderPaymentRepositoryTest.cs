@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace ApparelShoppingAppAPITest.RepositoriesTest
 {
-    public class OrderRepositoryTest
+    public class OrderPaymentRepositoryTest
     {
         private ShoppingAppDbContext _context;
         private IOrderRepository _orderRepository;
@@ -22,6 +22,7 @@ namespace ApparelShoppingAppAPITest.RepositoriesTest
         private IAddressRepository _addressRepository;
         private IUserRegisterRepository _userRegisterRepository;
         private ICategoryRepository _categoryRepository;
+        private IPaymentRepository _paymentRepository;
         private Seller _seller;
         private Customer _customer;
         private Category _category;
@@ -49,6 +50,7 @@ namespace ApparelShoppingAppAPITest.RepositoriesTest
             _addressRepository = new AddressRepository(_context);
             _userRegisterRepository = new UserRegisterRepository(_context);
             _categoryRepository = new CategoryRepository(_context);
+            _paymentRepository = new PaymentRepository(_context);
 
             #region Register Seller
             // Register Seller and User
@@ -365,6 +367,69 @@ namespace ApparelShoppingAppAPITest.RepositoriesTest
             var ex = Assert.ThrowsAsync<InsufficientProductQuantityException>(() => _orderRepository.CheckOutCartWithTransaction(addedCart, _address));
             // Assert
             Assert.AreEqual($"Insufficient product quantity or product not found for Product ID {_product1.ProductId}", ex.Message);
+        }
+
+        [Test]
+        public async Task CheckOutCartWithTransaction_EmptyCart_ThrowsException()
+        {
+            // Arrange
+            var cart = new Cart
+            {
+                CustomerId = _customer.CustomerId,
+                Items = new List<CartItem>()
+            };
+            var addedCart = await _cartRepository.Add(cart);
+
+            // Act
+            var ex = Assert.ThrowsAsync<CartEmptyException>(() => _orderRepository.CheckOutCartWithTransaction(addedCart, _address));
+            // Assert
+            Assert.AreEqual("Cart is empty", ex.Message);
+        }
+
+        [Test]
+        public async Task OrderPayment_ReturnPayment()
+        {
+            // Arrange
+            var order = await _orderRepository.CheckOutCartWithTransaction(_cart, _address);
+            PaymentDetail paymentDetail = new PaymentDetail
+            {
+                OrderId = order.OrderId,
+                PaymentDate = DateTime.Now,
+                PaymentMethod = "Credit Card",
+                Status = "Success",
+                Amount = order.TotalPrice
+            };
+
+            // Act
+            var result = await _paymentRepository.ProcessPaymentTransaction(paymentDetail, order);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(paymentDetail.OrderId, result.OrderId);
+            Assert.AreEqual(paymentDetail.PaymentDate, result.PaymentDate);
+            Assert.AreEqual(paymentDetail.PaymentMethod, result.PaymentMethod);
+            Assert.AreEqual(paymentDetail.Status, result.Status);
+            Assert.AreEqual(true, result.Order.IsPaid);
+            Assert.AreEqual(paymentDetail.Amount, result.Amount);
+        }
+        [Test]
+        public async Task GetAllPaymentsByCustomer_ReturnListOfPaymentsByCustomer()
+        {
+            //Arrange
+            var order = await _orderRepository.CheckOutCartWithTransaction(_cart, _address);
+            PaymentDetail paymentDetail = new PaymentDetail
+            {
+                OrderId = order.OrderId,
+                PaymentDate = DateTime.Now,
+                PaymentMethod = "Credit Card",
+                Status = "Success",
+                Amount = order.TotalPrice
+            };
+            var result = await _paymentRepository.ProcessPaymentTransaction(paymentDetail, order);
+            Assert.IsNotNull(result);
+            //Act
+            var payments = await _paymentRepository.GetAllPaymentsByCustomer(_customer.CustomerId);
+            //Assert
+            Assert.IsNotNull(payments);
+            Assert.AreEqual(1, payments.Count());
         }
 
         #endregion Test Cases

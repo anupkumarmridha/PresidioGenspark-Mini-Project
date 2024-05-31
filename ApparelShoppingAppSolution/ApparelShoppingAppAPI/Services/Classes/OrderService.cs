@@ -231,6 +231,10 @@ namespace ApparelShoppingAppAPI.Services.Classes
 
                 return order;
             }
+            catch (CartEmptyException)
+            {
+                throw;
+            }
             catch (CartNotFoundException)
             {
                 throw;
