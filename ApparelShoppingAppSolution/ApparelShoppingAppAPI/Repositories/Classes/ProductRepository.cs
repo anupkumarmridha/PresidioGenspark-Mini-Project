@@ -180,13 +180,14 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
         /// <param name="maxPrice"></param>
         /// <param name="availability"></param>
         /// <param name="minRating"></param>
+        /// <param name="maxRating"></param>
         /// <param name="sellerId"></param>
         /// <returns></returns>
         public async Task<IEnumerable<Product>> GetFilteredProducts(
-            int? categoryId = null, 
-            decimal? minPrice = null, 
-            decimal? maxPrice = null, 
-            bool? availability = null, 
+            int? categoryId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            bool? availability = null,
             double? minRating = null,
             double? maxRating = null,
             int? sellerId = null)
@@ -216,6 +217,10 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             if (minRating.HasValue)
             {
                 query = query.Where(p => p.Reviews.Average(r => r.Rating) >= minRating.Value);
+            }
+            if (maxRating.HasValue)
+            {
+                query = query.Where(p => p.Reviews.Average(r => r.Rating) <= maxRating.Value);
             }
             if (maxRating.HasValue)
             {
