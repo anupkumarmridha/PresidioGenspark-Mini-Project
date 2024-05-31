@@ -186,6 +186,12 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
                     await transaction.RollbackAsync();
                     throw;
                 }
+                catch (InsufficientProductQuantityException)
+                {
+                    // Rollback transaction
+                    await transaction.RollbackAsync();
+                    throw;
+                }
                 catch (Exception e)
                 {
                     // Rollback transaction
