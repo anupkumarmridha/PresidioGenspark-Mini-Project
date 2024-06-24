@@ -131,6 +131,15 @@ namespace ApparelShoppingAppAPI
             //    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
             //    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
             //});
+            #region CORS
+            services.AddCors(opts =>
+            {
+                opts.AddPolicy("MyCors", options =>
+                {
+                    options.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
+                });
+            });
+            #endregion
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
@@ -166,7 +175,7 @@ namespace ApparelShoppingAppAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
-
+            app.UseCors("MyCors");
             app.MapControllers();
 
             app.Run();
