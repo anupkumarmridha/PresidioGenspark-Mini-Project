@@ -101,6 +101,7 @@ namespace ApparelShoppingAppAPI.Controllers
         {
             try
             {
+
                 var Id = User.FindFirstValue(ClaimTypes.Name);
                 if (Id == null)
                 {
@@ -228,5 +229,25 @@ namespace ApparelShoppingAppAPI.Controllers
             }
         }
         #endregion GetFilteredProducts
+
+        #region GetAllCategories
+
+        [HttpGet("categories")]
+        [ProducesResponseType(typeof(Category), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllCategories()
+        {
+            try
+            {
+                var categories = await _productService.GetAllCategories();
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+        #endregion GetAllCategories
+
     }
 }

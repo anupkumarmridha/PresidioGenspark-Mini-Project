@@ -192,7 +192,10 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             double? maxRating = null,
             int? sellerId = null)
         {
-            var query = _context.Products.Include(p => p.Reviews).AsQueryable();
+            var query = _context.Products
+                .Include(p => p.Reviews)
+                .Include(p=>p.Category)
+                .AsQueryable();
 
             if (categoryId.HasValue)
             {

@@ -31,6 +31,7 @@ namespace ApparelShoppingAppAPI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserRegisterRepository, UserRegisterRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IAddressRepository, AddressRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();

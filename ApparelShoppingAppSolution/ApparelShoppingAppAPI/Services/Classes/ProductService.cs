@@ -9,10 +9,12 @@ namespace ApparelShoppingAppAPI.Services.Classes
     public class ProductService:IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
             _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         #region GetProductById
@@ -176,5 +178,12 @@ namespace ApparelShoppingAppAPI.Services.Classes
             return await _productRepository.GetFilteredProducts(categoryId, minPrice, maxPrice, availability, minRating, maxRating, sellerId);
         }
         #endregion GetFilteredProducts
+
+        #region GetAllCategories
+        public async Task<IEnumerable<Category>> GetAllCategories()
+        {
+            return await _categoryRepository.GetAll();
+        }
+        #endregion GetAllCategories
     }
 }

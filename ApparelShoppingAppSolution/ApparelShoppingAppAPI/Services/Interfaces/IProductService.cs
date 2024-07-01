@@ -11,6 +11,7 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
         Task<Product> AddProduct(ProductDTO product, int sellerId);
         Task<Product> UpdateProduct(int id, ProductDTO product);
         Task<Product> DeleteProduct(int id);
+        Task<IEnumerable<Category>> GetAllCategories();
         Task<IEnumerable<Product>> GetFilteredProducts(
             
             int? categoryId,
