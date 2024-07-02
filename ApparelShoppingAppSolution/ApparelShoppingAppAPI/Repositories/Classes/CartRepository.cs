@@ -24,10 +24,10 @@ namespace ApparelShoppingAppAPI.Repositories.Classes
             var cart = await _context.Carts.Include(c => c.Items)
                 .ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(c => c.CustomerId == userId);
-            if (cart == null)
-            {
-                throw new CartNotFoundException("Cart Not Found");
-            }
+            //if (cart == null)
+            //{
+            //    throw new CartNotFoundException("Cart Not Found");
+            //}
             return cart;
         }
         #endregion GetCartByUserId
