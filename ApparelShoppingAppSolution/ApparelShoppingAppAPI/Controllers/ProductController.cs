@@ -44,6 +44,33 @@ namespace ApparelShoppingAppAPI.Controllers
         }
         #endregion GetProducts
 
+        #region GetProductsBySeller
+        [Authorize(Roles = "Admin,Seller")]
+        [HttpGet("Seller")]
+        [ProducesResponseType(typeof(IList<Product>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorModel), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IList<Product>>> GetProductsBySeller()
+        {
+            try
+            {
+                var Id = User.FindFirstValue(ClaimTypes.Name);
+                if (Id == null)
+                {
+                    return BadRequest(new ErrorModel(400, "Invalid User"));
+                }
+                var sellerId = Convert.ToInt32(Id);
+                var result = await _productService.GetProductsBySeller(sellerId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return BadRequest(new ErrorModel(400, ex.Message));
+            }
+        }
+
+        #endregion GetProductsBySeller
+
         #region GetProduct
         /// <summary>
         /// Get product by id or name

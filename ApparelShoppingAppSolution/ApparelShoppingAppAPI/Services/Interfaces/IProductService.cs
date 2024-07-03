@@ -6,6 +6,7 @@ namespace ApparelShoppingAppAPI.Services.Interfaces
     public interface IProductService
     {
         Task<IEnumerable<Product>> GetAllProducts();
+        Task<IEnumerable<Product>> GetProductsBySeller(int sellerId);
         Task<Product> GetProductById(int id);
         Task<Product> GetProductByName(string name);
         Task<Product> AddProduct(ProductDTO product, int sellerId);

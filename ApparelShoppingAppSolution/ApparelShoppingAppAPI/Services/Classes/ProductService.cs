@@ -3,6 +3,9 @@ using ApparelShoppingAppAPI.Models.DB_Models;
 using ApparelShoppingAppAPI.Models.DTO_Models;
 using ApparelShoppingAppAPI.Repositories.Interfaces;
 using ApparelShoppingAppAPI.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+
 
 namespace ApparelShoppingAppAPI.Services.Classes
 {
@@ -58,6 +61,15 @@ namespace ApparelShoppingAppAPI.Services.Classes
             }
         }
         #endregion GetAllProducts
+
+        #region GetProductsBySeller
+        public async Task<IEnumerable<Product>> GetProductsBySeller(int sellerId)
+        {
+            var products = await _productRepository.GetAll();
+            return products.Where(p => p.SellerId == sellerId).ToList();
+        }
+
+        #endregion GetProductsBySeller
 
         #region AddProduct
         /// <summary>
